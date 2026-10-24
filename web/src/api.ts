@@ -40,6 +40,50 @@ export type MealsPayload = {
   ideas_card: IdeasCard;
 };
 
+export type ProviderStatus = {
+  name: string;
+  signed_in: boolean;
+  reachable: boolean;
+};
+
+export type ReceiptLine = {
+  id: string;
+  label: string;
+  category: string;
+  storage: string;
+  food: boolean;
+};
+
+export type ReceiptProposal = {
+  id: string;
+  lines: ReceiptLine[];
+};
+
+export type RecipeCard = {
+  id: string;
+  title: string;
+  source_kind?: string;
+  source_url?: string | null;
+  ingredients: string[];
+  steps: string[];
+  status?: string;
+};
+
+export type PlannedNight = {
+  on: string;
+  recipe_id: string;
+  title: string;
+};
+
+export class ApiError extends Error {
+  detail: string;
+
+  constructor(detail: string) {
+    super(detail);
+    this.detail = detail;
+  }
+}
+
 export type AuditEvent = {
   id: string;
   at: string;
@@ -60,7 +104,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     },
   });
   if (!response.ok) {
-    throw new Error(`${response.status} ${path}`);
+    let detail = `${response.status} ${path}`;
+    try {
+      const body = (await response.json()) as { detail?: string };
+      if (body.detail) {
+        detail = body.detail;
+      }
+    } catch {
+      /* keep the status line */
+    }
+    throw new ApiError(detail);
   }
   if (response.status === 204) {
     return undefined as T;
@@ -68,8 +121,25 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
+async function sendForm<T>(path: string, body: FormData): Promise<T> {
+  const response = await fetch(path, { method: "POST", body });
+  if (!response.ok) {
+    let detail = `${response.status} ${path}`;
+    try {
+      const payload = (await response.json()) as { detail?: string };
+      if (payload.detail) {
+        detail = payload.detail;
+      }
+    } catch {
+      /* keep the status line */
+    }
+    throw new ApiError(detail);
+  }
+  return (await response.json()) as T;
+}
+
 export const api = {
-  provider: () => request<{ name: string }>("/api/provider"),
+  provider: () => request<ProviderStatus>("/api/provider"),
   clock: () => request<{ now: string }>("/api/clock"),
   setClock: (now: string) => request<{ now: string }>("/api/clock", { method: "PUT", body: JSON.stringify({ now }) }),
   settings: (body: { grace_period_minutes: number; presume_after_minutes: number }) =>
@@ -83,4 +153,34 @@ export const api = {
     request<void>("/api/suggestions/stop-asking", { method: "POST", body: JSON.stringify({ key }) }),
   age: () => request<{ changed: number }>("/api/jobs/age", { method: "POST" }),
   audit: () => request<{ events: AuditEvent[] }>("/api/audit"),
+  submitReceipt: (image: File) => {
+    const body = new FormData();
+    body.append("image", image);
+    return sendForm<ReceiptProposal>("/api/receipts", body);
+  },
+  applyReceipt: (id: string, lines: { id: string; storage: string }[]) =>
+    request<{ added: number }>(`/api/receipts/${id}/apply`, {
+      method: "POST",
+      body: JSON.stringify({ lines }),
+    }),
+  proposeRecipeUrl: (url: string) =>
+    request<RecipeCard>("/api/recipes/proposals", {
+      method: "POST",
+      body: JSON.stringify({ source_kind: "url", url }),
+    }),
+  proposeRecipeImage: (sourceKind: "screenshot" | "book_photo", image: File) => {
+    const body = new FormData();
+    body.append("source_kind", sourceKind);
+    body.append("image", image);
+    return sendForm<RecipeCard>("/api/recipes/proposals", body);
+  },
+  acceptRecipe: (id: string) =>
+    request<RecipeCard>(`/api/recipes/proposals/${id}/accept`, { method: "POST" }),
+  recipes: () => request<{ recipes: RecipeCard[] }>("/api/recipes"),
+  planNight: (on: string, recipeId: string) =>
+    request<PlannedNight>("/api/planned-meals", {
+      method: "POST",
+      body: JSON.stringify({ on, recipe_id: recipeId }),
+    }),
+  plannedMeals: () => request<{ nights: PlannedNight[] }>("/api/planned-meals"),
 };

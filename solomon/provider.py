@@ -16,6 +16,10 @@ class ModelProvider(Protocol):
     ) -> dict[str, Any]: ...
 
 
+class ReaderOff(RuntimeError):
+    """The household model is not available to read a receipt or a recipe."""
+
+
 class DisabledProvider:
     name = "Disabled"
 
@@ -26,3 +30,19 @@ class DisabledProvider:
         policy: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         raise RuntimeError("ModelProvider is Disabled")
+
+    def status(self) -> dict[str, Any]:
+        return {"name": self.name, "signed_in": False, "reachable": False}
+
+    def read_receipt(self, image: bytes) -> list[dict[str, Any]]:
+        raise ReaderOff("The reader is off.")
+
+    def read_recipe(
+        self,
+        *,
+        kind: str,
+        image: bytes | None = None,
+        url: str | None = None,
+        page: str | None = None,
+    ) -> dict[str, Any]:
+        raise ReaderOff("The reader is off.")

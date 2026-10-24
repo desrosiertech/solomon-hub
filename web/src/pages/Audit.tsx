@@ -5,6 +5,8 @@ const ACTION_COPY: Record<string, string> = {
   "inventory.added": "Added inventory item",
   "suggestion.stop_asking": "Stop asking",
   "inventory.presumed_discarded": "Presumed discarded",
+  "receipt.applied": "Added receipt lines to inventory",
+  "recipe.banked": "Banked a recipe",
 };
 
 export function AuditPage() {

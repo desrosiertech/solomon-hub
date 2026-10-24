@@ -79,6 +79,14 @@ class EstimatedWindow:
     anchor: datetime
 
 
+def default_storage(category: str) -> str:
+    table = BASE_DAYS.get(category, BASE_DAYS["unknown"])
+    for place in ("fridge", "pantry", "counter", "freezer"):
+        if table.get(place):
+            return place
+    return "pantry"
+
+
 def _label(slug: str) -> str:
     return slug.replace("_", " ")
 

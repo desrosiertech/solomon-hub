@@ -69,6 +69,10 @@ class RecipeRow(Base):
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
     title: Mapped[str] = mapped_column(String)
+    source_kind: Mapped[str] = mapped_column(String, default="seed")
+    source_url: Mapped[str | None] = mapped_column(String)
+    steps_json: Mapped[str] = mapped_column(Text, default="[]")
+    image_path: Mapped[str | None] = mapped_column(String)
 
 
 class RecipeIngredientRow(Base):
@@ -104,6 +108,51 @@ class StateTransition(Base):
     window_epoch: Mapped[str] = mapped_column(String)
     at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     actor: Mapped[str] = mapped_column(String)
+
+
+class ReceiptRow(Base):
+    __tablename__ = "receipt"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    sha256: Mapped[str] = mapped_column(String, unique=True)
+    image_path: Mapped[str] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, default="proposed")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class ReceiptLineRow(Base):
+    __tablename__ = "receipt_line"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    receipt_id: Mapped[str] = mapped_column(String)
+    label: Mapped[str] = mapped_column(String)
+    category: Mapped[str] = mapped_column(String)
+    storage: Mapped[str] = mapped_column(String)
+    food: Mapped[int] = mapped_column(Integer, default=1)
+    item_id: Mapped[str | None] = mapped_column(String)
+
+
+class RecipeProposalRow(Base):
+    __tablename__ = "recipe_proposal"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    title: Mapped[str] = mapped_column(String)
+    source_kind: Mapped[str] = mapped_column(String)
+    source_url: Mapped[str | None] = mapped_column(String)
+    ingredients_json: Mapped[str] = mapped_column(Text)
+    steps_json: Mapped[str] = mapped_column(Text)
+    image_path: Mapped[str | None] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, default="proposed")
+    recipe_id: Mapped[str | None] = mapped_column(String)
+
+
+class PlannedMealRow(Base):
+    __tablename__ = "planned_meal"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    on_date: Mapped[str] = mapped_column(String, unique=True)
+    recipe_id: Mapped[str] = mapped_column(String)
+    title: Mapped[str] = mapped_column(String)
 
 
 class AuditEvent(Base):
