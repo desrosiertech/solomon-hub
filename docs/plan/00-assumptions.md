@@ -25,7 +25,7 @@ All published skills from `mattpocock/skills@5beb35b` are vendored under `.agent
 
 - Home Assistant OS is a Proxmox VM on ThinkCentre M910s "Deepthink" (i7-6700, 16 GB RAM, 240 GB SSD). The model lives in a sibling VM on that same host (ADR-0006), never inside HAOS. HA does not get all of the RAM.
 - "Skynet" is a Windows Plex server with a GTX 1080 Ti (11 GB). Plex stays. It is not the model host.
-- UniFi gear + controller, Blink cameras in HA, *arr + Tautulli + qBittorrent, Google Calendar exist. Versions and exact models are unknown.
+- There is no UniFi gateway. The router that faces the internet is a different box, and its make and model are still unknown. The Skynet systems board shows an access point named AC Pro Main, so UniFi wireless gear may still be present. Blink cameras in HA, *arr + Tautulli + qBittorrent, and Google Calendar exist. Versions are unknown.
 - Servers already have reserved/static LAN addresses outside the DHCP pool.
 - Household is in the US (NWS weather is usable). Electricity price uses the latest EIA US residential average until a local rate is supplied.
 - Two dogs, two cars; names and records arrive later via onboarding, never in chat.

@@ -4,7 +4,8 @@ Remote phone and admin access uses the Household tailnet. Cloudflare Tunnel is a
 
 **Status:** accepted. Household policy decided 2026-10-24, and it narrows the sketch below.
 
-- The tailnet has two Adults. Both are admins. Both may open Solomon, Home Assistant, Proxmox, and UniFi.
+- The tailnet has two Adults. Both are admins. Both may open Solomon, Home Assistant, and Proxmox.
+- There is no UniFi gateway. Firewall rules go on the WAN router, whose make and model are still unknown.
 - Do not create `group:kids`. No guest device gets a tailnet login.
 - Overseerr is the media-request app. It stays on the tailnet. Cloudflare Tunnel stays off. Nobody outside the two Adults submits requests.
 - The Display is a 65-inch LG C5 (2025, webOS). A later 10-foot layout is a browser or an HDMI device. There is no Tizen app.
@@ -115,7 +116,7 @@ Tunnel tokens live in the host secret store, not in git.
 
 ## Firewall and test
 
-On the UniFi gateway **and** on each host:
+On the WAN router (not a UniFi gateway in this house) **and** on each host:
 
 - Inbound WAN: default deny, no port-forward rules, no UPnP.
 - Inbound LAN: only what that host needs (Solomon from LAN Displays; HA from Solomon and satellites).
