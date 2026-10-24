@@ -6,7 +6,7 @@ Effort is relative (S/M/L), not calendar time. Each phase ends with acceptance t
 
 **Deliverables:** this plan (done); Tailscale + default-deny firewall; encrypted backup restore drill; `bench/` run on real hardware; a written hardware pick.
 
-**Depends on:** physical access to Deepthink / Skynet / UniFi.
+**Depends on:** physical access to Deepthink, Skynet, and the Verizon router. UniFi OS on DeepThink controls two access points and is not the gateway.
 
 **Acceptance:** `13-phase0-security-checklist.md` S0.1–S0.9; `bench/README.md` produces a filled results file (not guessed numbers).
 
@@ -73,4 +73,4 @@ Effort is relative (S/M/L), not calendar time. Each phase ends with acceptance t
 
 ## First thin slice
 
-Phase 2 starts with `docs/tickets/001-grocery-vertical-slice.md` (also a GitHub issue). No Google, Blink, or cloud AI.
+Ticket 001 (grocery, AI off) is on main. Next is `docs/tickets/002-interim-local-model.md`: the DeepThink model VM stays optional, and the grocery screens keep working with the model disabled. No Google, Blink, or cloud AI.

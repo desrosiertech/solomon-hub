@@ -18,15 +18,15 @@ Checked 2026-10-24 against current primary docs. Labels: **documented** / **expe
 | Voice (optional) | **Supported now** (HA Assist); quality **experimental** on i7-6700 | Local pipeline documented. Voice PE has a physical mic mute. Prefer PTT. See ADR-0004. |
 | Private web chat | **Supported now** | Solomon page, local model or disabled. |
 | Discord | **Supported, optional, warned** | Traverses Discord. Off by default. |
-| Dedicated email intake | **Needs prototype** | IMAP of a dedicated box + deterministic extractor (ADR-0003). Gmail API `readonly` is restricted for public apps. **[blocked by a third-party API]** Hermes *can* speak AgentMail; we still do not give Hermes the inbox. **[documented]** Hermes optional skill `email-agentmail` |
+| Dedicated email intake | **Needs prototype** | Vendor decided: dedicated Gmail, IMAP app password, not the Gmail API (ADR-0003). Hermes still does not get the inbox. |
 | Media journal (Spooktober) | **Supported now** | Local table. No API required. |
 | Plex / Tautulli | **Supported now** | LAN APIs + API keys. HA also has a Plex integration. |
-| Request app (Overseerr / Jellyseerr / custom) | **Needs the site name** | Those apps expose REST APIs; we cannot bind until we know which one. |
+| Request app | **Decided: Overseerr, tailnet only** | API key on the LAN or tailnet. Cloudflare stays off. Phase 4 before Solomon calls it. |
 | Sonarr/Radarr | **Supported now** as read/status | API-key auth. Solomon will not automate downloads. |
 | Letterboxd | **Third-party constrained** | API is request-only and **not granted for private/personal projects**. Use export + profile RSS. **[blocked by a third-party API]** https://letterboxd.com/api-beta/access/ |
 | Goodreads | **Third-party constrained** | New API keys have been shut down for years; CSV export is the path. |
-| Samsung / Tizen TV app | **Needs prototype** | Tizen web apps exist. **[documented]** https://developer.samsung.com/smarttv/develop/getting-started/quick-start-guide.html Sideloading needs developer mode. HA `samsungtv` can send keys and sometimes launch apps — model-specific. **[experimental]** Unified continue-watching is **unverified**. Fallback: browser or HDMI device + Plex + manual journal. |
-| Systems (Proxmox, UniFi, Plex health) | **Supported now** (read) | Proxmox API tokens with privilege separation. **[documented]** https://pve.proxmox.com/wiki/Proxmox_VE_API . UniFi local integration / Network API — confirm the controller version. Admin UIs stay **tailnet-only**. |
+| LG C5 (2025) Display | **Browser or HDMI device** | 65-inch webOS set. A native webOS app is not the plan. 10-foot layout is later. Unified continue-watching stays unverified. |
+| Systems (Proxmox, Plex health, UniFi, the Verizon router) | **Supported now** (read) | Proxmox API tokens with privilege separation. **[documented]** https://pve.proxmox.com/wiki/Proxmox_VE_API . UniFi OS is a DeepThink VM that controls two access points. The Verizon router is the WAN edge. Admin UIs stay **tailnet-only**. |
 | Cars / dogs records | **Supported now** | Structured tables + confirmation. OCR proposes only. |
 | Photos | **Third-party constrained** | Google Photos Library API no longer reads the user's whole library (scopes removed 2025-03-31 / page note 2025-04-01). Picker API = user-selected items; Library API = **app-created** data. **[blocked by a third-party API]** https://developers.google.com/photos/support/updates and https://developers.google.com/photos/support/api-overview . Path: Google Takeout / a local export, or Picker for one-off choices. Never auto-delete. |
 | Tailscale remote access | **Supported now** | Outbound-only client, grants, tags, MagicDNS. ADR-0005. |

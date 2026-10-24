@@ -2,11 +2,18 @@
 
 Remote phone and admin access uses the Household tailnet. Cloudflare Tunnel is an optional, off-by-default path for a *public* page (for example a media-request site), never for Solomon's household data. The WAN-facing firewall is empty: default-deny inbound, no port forwards. Both Tailscale and `cloudflared` only need outbound connectivity.
 
-**Status:** accepted (planning). Replaces a generic "private VPN" in the brief.
+**Status:** accepted. Household policy decided 2026-10-24, and it narrows the sketch below.
+
+- The tailnet has two Adults. Both are admins. Both may open Solomon, Home Assistant, and Proxmox.
+- The WAN router is a Verizon router. Firewall rules go there. There is no UniFi gateway.
+- UniFi OS is a VM on DeepThink. It controls two access points. Both Adults may admin that VM. It does not route the house.
+- Do not create `group:kids`. No guest device gets a tailnet login.
+- Overseerr is the media-request app. It stays on the tailnet. Cloudflare Tunnel stays off. Nobody outside the two Adults submits requests.
+- The Display is a 65-inch LG C5 (2025, webOS). A later 10-foot layout is a browser or an HDMI device. There is no Tizen app.
 
 ## Why
 
-The attack surface of a household server should be "the tailnet, and (if you turn it on) one Cloudflare hostname with Access in front." That matches levelsio's advice and the brief's "no public port forwarding." A VPS with Traefik on :443 (the friend's hub) is rejected for Solomon itself.
+The attack surface of a household server is the tailnet. This Household does not turn on a Cloudflare hostname. A VPS with Traefik on :443 (the friend's hub) is rejected for Solomon itself. Overseerr stays on the tailnet with everything else.
 
 ## Tailscale (default on)
 
@@ -19,7 +26,7 @@ Metadata (who is online, device names, some traffic stats) is visible to Tailsca
 
 Use **grants** as the current policy syntax, with classic ACLs only if a needed feature is still ACL-only. **[documented]** https://tailscale.com/docs/features/grants and https://tailscale.com/kb/1337/acl-syntax
 
-Sketch (names are placeholders, not real people):
+Sketch from planning (names are placeholders). For this Household, skip the `group:kids` grant and treat both Adults as admins. The `group:adults` split that withholds Proxmox and UniFi does not apply.
 
 ```jsonc
 {
@@ -110,7 +117,7 @@ Tunnel tokens live in the host secret store, not in git.
 
 ## Firewall and test
 
-On the UniFi gateway **and** on each host:
+On the Verizon router **and** on each host:
 
 - Inbound WAN: default deny, no port-forward rules, no UPnP.
 - Inbound LAN: only what that host needs (Solomon from LAN Displays; HA from Solomon and satellites).
