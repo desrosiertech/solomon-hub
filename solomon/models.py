@@ -155,6 +155,39 @@ class PlannedMealRow(Base):
     title: Mapped[str] = mapped_column(String)
 
 
+class CalendarEvent(Base):
+    __tablename__ = "calendar_event"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    source: Mapped[str] = mapped_column(String)
+    ext_id: Mapped[str | None] = mapped_column(String)
+    title: Mapped[str] = mapped_column(String)
+    start: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    end: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    location: Mapped[str | None] = mapped_column(String)
+    member_id: Mapped[str | None] = mapped_column(String)
+
+
+class WeatherSnapshot(Base):
+    __tablename__ = "weather_snapshot"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    temp_f: Mapped[int] = mapped_column(Integer)
+    high_f: Mapped[int] = mapped_column(Integer)
+    low_f: Mapped[int] = mapped_column(Integer)
+    summary: Mapped[str] = mapped_column(String)
+    observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class SourceStatus(Base):
+    __tablename__ = "source_status"
+
+    adapter: Mapped[str] = mapped_column(String, primary_key=True)
+    reachable: Mapped[int] = mapped_column(Integer, default=1)
+    last_ok_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_error_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
 class AuditEvent(Base):
     __tablename__ = "audit_event"
 

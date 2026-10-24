@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from solomon.board import BoardStore, CalendarAdapter, WeatherAdapter
 from solomon.clock import AppClock
 from solomon.intake import (
     accept_recipe,
@@ -61,6 +62,14 @@ class PlanIn(BaseModel):
     recipe_id: str
 
 
+class CalendarEventIn(BaseModel):
+    title: str
+    start_local: str
+    end_local: str | None = None
+    location: str | None = None
+    member_id: str | None = None
+
+
 def create_app(
     db_path: Path | str | None = None,
     *,
@@ -68,6 +77,8 @@ def create_app(
     provider: ModelProvider | None = None,
     blob_dir: Path | str | None = None,
     fetch_page=None,
+    weather: WeatherAdapter | None = None,
+    calendar: CalendarAdapter | None = None,
 ) -> FastAPI:
     path = Path(db_path) if db_path is not None else DEFAULT_DB
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -77,6 +88,7 @@ def create_app(
     clock = clock or AppClock()
     store = FoodStore(engine, clock, provider or DisabledProvider())
     store.blob_dir = Path(blob_dir) if blob_dir is not None else path.parent / "blobs"
+    board = BoardStore(engine, clock, weather, calendar)
 
     app = FastAPI(title="Solomon", version="0.1.0")
     app.add_middleware(
@@ -86,6 +98,7 @@ def create_app(
         allow_headers=["*"],
     )
     app.state.store = store
+    app.state.board = board
     app.state.clock = clock
     app.state.provider = store.provider
 
@@ -122,7 +135,22 @@ def create_app(
 
     @app.get("/api/home")
     def home() -> dict:
-        return store.home()
+        return {**store.home(), **board.home()}
+
+    @app.post("/api/calendar/events", status_code=201)
+    def add_calendar_event(body: CalendarEventIn) -> dict:
+        try:
+            return board.add_event(body.model_dump())
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/api/calendar/refresh")
+    def refresh_calendar() -> dict:
+        return board.refresh_calendar()
+
+    @app.post("/api/weather/refresh")
+    def refresh_weather() -> dict:
+        return board.refresh_weather()
 
     @app.get("/api/meals")
     def meals() -> dict:
