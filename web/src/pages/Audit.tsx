@@ -11,14 +11,14 @@ export function AuditPage() {
   const audit = useQuery({ queryKey: ["audit"], queryFn: api.audit });
 
   return (
-    <section className="rounded-2xl border border-line bg-card p-5 shadow-sm">
-      <h2 className="mb-3 text-2xl">History</h2>
+    <section className="rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
+      <h2 className="mb-3 text-2xl font-semibold tracking-tight">History</h2>
       {audit.isPending && <p className="text-muted">Loading history…</p>}
-      <ol className="space-y-3">
+      <ol className="divide-y divide-line">
         {audit.data?.events.map((event) => (
-          <li key={event.id} className="rounded-xl bg-canvas px-4 py-3">
+          <li key={event.id} className="py-3 first:pt-0 last:pb-0">
             <p className="text-lg">{ACTION_COPY[event.action] ?? event.action}</p>
-            <p className="text-sm text-muted">
+            <p className="text-sm text-muted tabular-nums">
               {event.actor_kind === "job" ? "Aging job" : "Adult"} ·{" "}
               {new Date(event.at).toLocaleString()}
             </p>

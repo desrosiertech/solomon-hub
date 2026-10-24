@@ -1,15 +1,73 @@
 @import "tailwindcss";
 
-@theme {
-  --color-canvas: #faf7f2;
-  --color-card: #ffffff;
-  --color-ink: #2c261c;
-  --color-muted: #6b6256;
-  --color-line: #e6dfd4;
-  --color-sage: #6d7f67;
-  --color-sage-soft: #e7eee4;
-  --color-sand: #c4a574;
-  --color-sand-soft: #f3eadc;
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("./fonts/sora-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "Sora";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("./fonts/sora-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root,
+[data-theme="light"] {
+  --canvas: #e7edf6;
+  --card: #f5f8fc;
+  --ink: #101828;
+  --muted: #3e4c63;
+  --line: #c5d0e2;
+  --accent: #1e4fd7;
+  --on-accent: #f5f8ff;
+  --wash: #d9e4f8;
+  --shadow: rgb(16 24 40 / 18%);
+  color-scheme: light;
+}
+
+[data-theme="navy"] {
+  --canvas: #08101c;
+  --card: #101a2e;
+  --ink: #e9f0fc;
+  --muted: #c9d6ee;
+  --line: #2a3d5c;
+  --accent: #d5e4ff;
+  --on-accent: #07111f;
+  --wash: #1a2d4d;
+  --shadow: rgb(0 0 0 / 45%);
+  color-scheme: dark;
+}
+
+[data-theme="dark"] {
+  --canvas: #0e131b;
+  --card: #171d28;
+  --ink: #eef3fb;
+  --muted: #c3cedf;
+  --line: #2c3648;
+  --accent: #c9dbff;
+  --on-accent: #10141c;
+  --wash: #243044;
+  --shadow: rgb(0 0 0 / 40%);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-wash: var(--wash);
+  --font-sans: "Sora", "Avenir Next", "Segoe UI", sans-serif;
 }
 
 html,
@@ -20,8 +78,52 @@ body,
 
 body {
   margin: 0;
-  background: var(--color-canvas);
-  color: var(--color-ink);
-  font-family:
-    "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+body,
+button,
+input,
+select {
+  transition:
+    background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-color: var(--line) transparent;
+}
+
+input,
+select,
+button {
+  accent-color: var(--accent);
 }
