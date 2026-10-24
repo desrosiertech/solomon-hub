@@ -137,6 +137,13 @@ def create_app(
     def home() -> dict:
         return {**store.home(), **board.home()}
 
+    @app.get("/api/calendar/day")
+    def calendar_day(on: str | None = None) -> dict:
+        try:
+            return board.day(on)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     @app.post("/api/calendar/events", status_code=201)
     def add_calendar_event(body: CalendarEventIn) -> dict:
         try:

@@ -58,6 +58,16 @@ export type WeatherSnapshot = SourceCard & {
   summary: string | null;
 };
 
+export type CalendarDay = {
+  on: string;
+  date_label: string;
+  prev: string;
+  next: string;
+  is_today: boolean;
+  day_cards: DayCard[];
+  calendar: SourceCard;
+};
+
 export type HomePayload = {
   ideas: MealIdea[];
   use_soon: Suggestion[];
@@ -189,6 +199,8 @@ export const api = {
   addItem: (body: Record<string, unknown>) =>
     request<InventoryItem>("/api/inventory", { method: "POST", body: JSON.stringify(body) }),
   home: () => request<HomePayload>("/api/home"),
+  calendarDay: (on?: string | null) =>
+    request<CalendarDay>(`/api/calendar/day${on ? `?on=${encodeURIComponent(on)}` : ""}`),
   addEvent: (body: {
     title: string;
     start_local: string;
