@@ -6,7 +6,7 @@ Effort is relative (S/M/L), not calendar time. Each phase ends with acceptance t
 
 **Deliverables:** this plan (done); Tailscale + default-deny firewall; encrypted backup restore drill; `bench/` run on real hardware; a written hardware pick.
 
-**Depends on:** physical access to Deepthink, Skynet, and the WAN router. There is no UniFi gateway.
+**Depends on:** physical access to Deepthink, Skynet, and the Verizon router. UniFi OS on DeepThink controls two access points and is not the gateway.
 
 **Acceptance:** `13-phase0-security-checklist.md` S0.1–S0.9; `bench/README.md` produces a filled results file (not guessed numbers).
 

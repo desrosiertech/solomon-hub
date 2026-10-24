@@ -4,14 +4,14 @@ Do this on the real network before any household data is loaded. Cloudflare Tunn
 
 ## Build the empty inbound edge
 
-1. WAN router (this house has no UniFi gateway; the make and model are still unknown): no port-forward, no UPnP, WAN inbound default deny. Confirm the steps on that router's own admin page.
+1. Verizon router: no port-forward, no UPnP, WAN inbound default deny. Confirm the clicks on that router's own admin page. UniFi OS does not sit on the WAN edge.
 2. Each host (Proxmox, HAOS, Solomon, Windows Plex): host firewall default-deny inbound from WAN-facing interfaces. Allow LAN sources you intend (Displays → Solomon; satellites → HA).
 3. Confirm nothing listens on public 80/443. Solomon binds `127.0.0.1` + LAN + tailnet. HA listens on LAN + tailnet only.
 
 ## Tailscale
 
 1. Create the tailnet. Turn on **device approval**. Invite only household adults first.
-2. Install the client on Solomon, HA, Proxmox, and one admin phone. Add the network controller only if that box can run Tailscale. Tag servers. Disable key expiry on tagged nodes; leave it on for phones.
+2. Install the client on Solomon, HA, Proxmox, the UniFi OS VM, and one admin phone. Tag servers. Disable key expiry on tagged nodes; leave it on for phones.
 3. Apply the decided grants in ADR-0005. Two Adult admins. Do not create `group:kids`.
 4. MagicDNS names only, boring host labels (`hub`, `ha`, `pve`).
 5. `tailscale funnel` denied. `--shields-up` on phones and Displays.
@@ -25,7 +25,7 @@ Do this on the real network before any household data is loaded. Cloudflare Tunn
 | S0.2 | Optional second opinion: GRC ShieldsUP! or equivalent against the WAN IP | No unexpected open TCP |
 | S0.3 | Phone **on** the tailnet opens `https://hub.<tailnet>.ts.net` (or the LAN IP over Tailscale) | Solomon dashboard loads |
 | S0.4 | Same phone, Tailscale **off**, cellular only, same URL and the WAN IP | Connection fails. No dashboard |
-| S0.5 | Tailnet has exactly the two Adult admins. No `group:kids` grant | Both can open Solomon, HA, and Proxmox. Any other device cannot |
+| S0.5 | Tailnet has exactly the two Adult admins. No `group:kids` grant | Both can open Solomon, HA, Proxmox, and the UniFi OS VM. Any other device cannot |
 | S0.6 | Guest Wi-Fi client | No Solomon admin, no HA, no Proxmox |
 | S0.7 | `cloudflared` is not installed, or the service is disabled | `systemctl is-enabled cloudflared` is inactive |
 | S0.8 | Backup: take an encrypted copy, restore onto a throwaway VM, Alembic revision matches | Restore drill signed off |
