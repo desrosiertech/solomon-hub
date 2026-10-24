@@ -2,7 +2,7 @@
 
 The daily model runs on DeepThink, the ThinkCentre M910s (i7-6700, Proxmox), in its own VM. Home Assistant OS stays the Device authority and does not run Ollama. Skynet stays Plex. Solomon's Household default stays the disabled provider until a bench on this VM passes.
 
-**Status:** accepted (2026-10-24). Supersedes the hardware-host paragraphs in ADR-0001. Configuration C in that ADR still stands.
+**Status:** accepted for the later local model (2026-10-24). Supersedes the hardware-host paragraphs in ADR-0001. The interim 3B is not the start. ADR-0008 starts Hermes on Claude Opus through Nous Portal. This VM is what we build when a model must stay on the LAN.
 
 ## Why this host
 

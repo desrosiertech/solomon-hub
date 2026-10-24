@@ -2,7 +2,7 @@
 
 Status: proposed (planning pass, 2026-10-24). Vocabulary follows `GLOSSARY.md`.
 
-The food engine is plain code inside the Inventory and Meals domain services. It assigns estimated use-by windows, derives confidence, generates Use soon lines and Meal ideas, suppresses them, ages items to Stale and Presumed discarded, and computes the Shopping list. **None of it calls a model.** A model (local by default) may only *propose* inputs, for example by interpreting an ambiguous receipt line ("ORG BBY SPN 5OZ") or by translating "we used the melon" into a structured Correction. Those proposals pass through the same validation as a Member's tap.
+The food engine is plain code inside the Inventory and Meals domain services. It assigns estimated use-by windows, derives confidence, generates Use soon lines and Meal ideas, suppresses them, ages items to Stale and Presumed discarded, and computes the Shopping list. **None of that arithmetic calls a model.** The starting model may *propose* inputs: receipt lines, a banked Recipe, a week drawn from the Recipe bank plus Inventory, or a Correction from "we used the melon" (ADR-0009). Those proposals pass through the same validation as a Member's tap.
 
 Every number below is a **default to tune during Phase 2**, not a food-safety statement. UI copy uses "estimated use-by window" and "may be past its expected freshness window".
 

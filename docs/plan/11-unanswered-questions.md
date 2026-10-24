@@ -4,7 +4,7 @@ Architectural impact first. At most five are "ask now"; the rest wait. Never ans
 
 ## Answered (2026-10-24)
 
-1. **Where does the daily model live?** On DeepThink, in a sibling VM. Interim 3B guest on the current 16 GB. Buy 64 GB (4×16 DDR4 UDIMM, 1.2 V) and a 1 TB SSD before an 8B. No GPU in this order. ADR-0006.
+1. **Where does the daily model live?** The starting brain is Claude Opus through Nous Portal. Hermes runs on the Solomon VM and the prompts leave the house (ADR-0008). A later local model still belongs on DeepThink, in a sibling VM, after 64 GB and a 1 TB SSD (ADR-0006). That VM is not the start. Receipts and recipes the Adult submits are read by Opus and stored as Inventory and Recipe Records (ADR-0009).
 2. **Who is on the tailnet?** Two Adults, both admins, for Solomon, Home Assistant, Proxmox, and the UniFi OS VM. No kids group. The WAN router is a Verizon router. UniFi OS on DeepThink controls two access points and is not the gateway.
 3. **Public media-request page?** No. Overseerr stays on the tailnet. Cloudflare Tunnel stays off.
 4. **Intake mailbox?** A dedicated Gmail, read over IMAP with an app password. Not the Gmail API. Not a personal mailbox. ADR-0003.

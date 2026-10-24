@@ -4,7 +4,7 @@
 
 **Blocked by:** None (can start immediately). The grocery slice is already on main. Creating the VM on the household Proxmox is a human step described in ADR-0006. The app work does not wait on it. CI treats the model as unreachable.
 
-**Status:** ready-for-agent
+**Status:** deferred (2026-10-24). The starting brain is Claude Opus through Nous Portal (ADR-0008). This ticket returns when a model must stay on the LAN. Next build is `docs/tickets/003-portal-receipts-and-recipes.md`.
 
 **GitHub:** https://github.com/desrosiertech/solomon-hub/issues/4
 (`ready-for-agent` label could not be created; this token cannot write repo labels. Applied `enhancement`.)
