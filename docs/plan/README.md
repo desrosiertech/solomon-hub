@@ -29,6 +29,7 @@ Vocabulary: `GLOSSARY.md`. Decisions: `docs/adr/`. Grocery slice: `docs/tickets/
 | [0004](../adr/0004-voice-optional-ha-first.md) | Voice optional; HA Assist is the pipeline; no ambient recording |
 | [0005](../adr/0005-tailscale-and-optional-cloudflare-tunnel.md) | Tailscale for remote/admin; Cloudflare Tunnel off; two Adult admins; Overseerr on the tailnet |
 | [0006](../adr/0006-model-vm-on-deepthink.md) | Daily model VM on DeepThink, beside Home Assistant |
+| [0007](../adr/0007-hermes-learns-from-adults.md) | What Adults tell Solomon trains Hermes memory and skills |
 
 ## Claim labels
 

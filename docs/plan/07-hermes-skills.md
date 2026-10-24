@@ -10,12 +10,12 @@ Claim labels below are from the planning-pass research; anything not yet confirm
 | Provider | Local OpenAI-compatible URL (Ollama). No cloud key in the Hermes env by default |
 | Network | Container on an internal Compose network. Publishes nothing on the WAN. Reaches only Solomon's Tool base URL and Ollama |
 | Auth | Hermes authenticates to Solomon as a service account with the "propose + read allow-listed" grant. Household Members are Solomon users, not Hermes users |
-| Memory | Conversational preferences only. Disable or ignore any long-term "household facts" memory. Records live in SQLite |
+| Memory | On, for what an Adult says in Solomon (ADR-0007). `MEMORY.md` and `USER.md` carry it into the next session. Email, OCR, and other untrusted text cannot write memory. SQLite remains the inventory record |
 | Tools | Allow-list in Hermes config: the Solomon Tools below. **No** terminal, **no** code execution, **no** browser unless a later ticket adds a fetch Tool that cannot see the LAN |
 | HA | Not through Hermes. Solomon's Devices service talks to HA |
 | Messaging | Solomon web chat is the default. Discord optional and off. Email is not a Hermes gateway (ADR-0003) |
 | Cron | Prefer Solomon jobs. If Hermes cron is used, wrap it in a **script gate** (the friend's pattern): a script prints context or prints nothing; the model runs only when there is work |
-| Self-improved skills | Off or review-gated. A Skill directory Solomon does not mount cannot go live |
+| Self-improved skills | On, from Adult conversation (ADR-0007). A skill that can act waits for an Adult to approve it. Untrusted text cannot author a skill |
 
 Hermes is MIT. **[documented]** https://github.com/NousResearch/hermes-agent/blob/main/LICENSE  
 Local Ollama is configured as a Custom Endpoint (`http://<lan>:11434/v1`, no key). Ollama Cloud is a different, off-box provider. **[documented]** https://hermes-agent.nousresearch.com/docs/integrations/providers  
