@@ -28,6 +28,47 @@ export type MealIdea = {
   missing: string[];
 };
 
+export type CalendarEntry = {
+  id: string;
+  title: string;
+  when_label: string;
+  location: string | null;
+  who: string;
+  initial: string;
+  member_id: string | null;
+};
+
+export type DayCard = {
+  member_id: string | null;
+  display_name: string;
+  initial: string;
+  events: CalendarEntry[];
+};
+
+export type SourceCard = {
+  state: "empty" | "ready" | "stale" | "unknown";
+  chip: string | null;
+  updated_at: string | null;
+};
+
+export type WeatherSnapshot = SourceCard & {
+  temp_f: number | null;
+  high_f: number | null;
+  low_f: number | null;
+  summary: string | null;
+};
+
+export type HomePayload = {
+  ideas: MealIdea[];
+  use_soon: Suggestion[];
+  now: string;
+  date_label: string;
+  up_next: CalendarEntry[];
+  day_cards: DayCard[];
+  calendar: SourceCard;
+  weather: WeatherSnapshot;
+};
+
 export type IdeasCard = {
   state: "empty" | "ready" | "stale";
   generated_at: string | null;
@@ -147,7 +188,13 @@ export const api = {
   inventory: () => request<{ items: InventoryItem[] }>("/api/inventory"),
   addItem: (body: Record<string, unknown>) =>
     request<InventoryItem>("/api/inventory", { method: "POST", body: JSON.stringify(body) }),
-  home: () => request<{ ideas: MealIdea[]; use_soon: Suggestion[] }>("/api/home"),
+  home: () => request<HomePayload>("/api/home"),
+  addEvent: (body: {
+    title: string;
+    start_local: string;
+    location?: string;
+    member_id?: string | null;
+  }) => request<CalendarEntry>("/api/calendar/events", { method: "POST", body: JSON.stringify(body) }),
   meals: () => request<MealsPayload>("/api/meals"),
   stopAsking: (key: string) =>
     request<void>("/api/suggestions/stop-asking", { method: "POST", body: JSON.stringify({ key }) }),
