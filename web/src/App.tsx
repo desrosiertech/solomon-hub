@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "./api";
 import { AuditPage } from "./pages/Audit";
+import { CalendarPage } from "./pages/Calendar";
 import { HomePage } from "./pages/Home";
 import { InventoryPage } from "./pages/Inventory";
 import { MealsPage } from "./pages/Meals";
@@ -9,6 +10,7 @@ import { ThemeSwitch } from "./ui/ThemeSwitch";
 
 const TABS = [
   { id: "home", label: "Home" },
+  { id: "calendar", label: "Calendar" },
   { id: "meals", label: "Meals" },
   { id: "inventory", label: "Inventory" },
   { id: "audit", label: "History" },
@@ -37,21 +39,22 @@ export function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 pb-28">
+      <main className="mx-auto max-w-5xl px-6 pb-36">
         {tab === "home" && <HomePage />}
+        {tab === "calendar" && <CalendarPage />}
         {tab === "meals" && <MealsPage />}
         {tab === "inventory" && <InventoryPage />}
         {tab === "audit" && <AuditPage />}
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-card">
-        <div className="mx-auto flex max-w-5xl justify-around py-3">
+      <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-card">
+        <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-1 px-2 py-2">
           {TABS.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              className={`rounded-full px-4 py-2 text-lg ${
+              className={`shrink-0 rounded-full px-3 py-2 text-sm sm:text-lg ${
                 tab === item.id ? "bg-wash text-ink" : "text-muted"
               }`}
             >

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import UTC, datetime, time, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Protocol
 from uuid import uuid4
 from zoneinfo import ZoneInfo
@@ -110,8 +110,11 @@ def parse_local(value: str) -> datetime:
 
 
 def date_label(now: datetime) -> str:
-    local = _aware(now).astimezone(HOUSEHOLD_TZ)
-    return f"{WEEKDAYS[local.weekday()]}, {MONTHS[local.month - 1]} {local.day}"
+    return date_label_for(_aware(now).astimezone(HOUSEHOLD_TZ).date())
+
+
+def date_label_for(day: date) -> str:
+    return f"{WEEKDAYS[day.weekday()]}, {MONTHS[day.month - 1]} {day.day}"
 
 
 def when_label(start: datetime, now: datetime) -> str:
@@ -135,6 +138,18 @@ def updated_ago(updated_at: datetime, now: datetime) -> str:
 def source_state(*, status: SourceStatus | None, has_rows: bool) -> str:
     if status is not None and not status.reachable:
         return "stale" if has_rows else "unknown"
+    if has_rows:
+        return "ready"
+    return "empty"
+
+
+def day_source_state(*, status: SourceStatus | None, has_rows: bool) -> str:
+    unreachable = status is not None and not status.reachable
+    ever_ok = status is not None and status.last_ok_at is not None
+    if unreachable:
+        if has_rows or ever_ok:
+            return "stale"
+        return "unknown"
     if has_rows:
         return "ready"
     return "empty"
@@ -280,6 +295,40 @@ class BoardStore:
             session.commit()
         return self.home()["calendar"]
 
+    def day(self, on: str | None) -> dict:
+        now = self.clock.now()
+        viewed = self._viewed_day(on, now)
+        bounds = _bounds_for_date(viewed)
+        label_now = datetime.combine(viewed, time(12, 0), tzinfo=HOUSEHOLD_TZ)
+        with self.session() as session:
+            names = self._names(session)
+            rows = list(session.scalars(select(CalendarEvent)))
+            status = session.get(SourceStatus, "calendar")
+            on_day = [row for row in rows if _overlaps_bounds(row, *bounds)]
+            state = day_source_state(status=status, has_rows=bool(on_day))
+            today = _aware(now).astimezone(HOUSEHOLD_TZ).date()
+            return {
+                "on": viewed.isoformat(),
+                "date_label": date_label_for(viewed),
+                "prev": (viewed - timedelta(days=1)).isoformat(),
+                "next": (viewed + timedelta(days=1)).isoformat(),
+                "is_today": viewed == today,
+                "day_cards": self._day_cards(rows, names, now, bounds=bounds, label_now=label_now),
+                "calendar": {
+                    "state": state,
+                    "chip": freshness_chip(state, status, now, "Calendar"),
+                    "updated_at": _iso(status.last_ok_at) if status else None,
+                },
+            }
+
+    def _viewed_day(self, on: str | None, now: datetime) -> date:
+        if on is None or not str(on).strip():
+            return _aware(now).astimezone(HOUSEHOLD_TZ).date()
+        try:
+            return date.fromisoformat(on)
+        except ValueError as exc:
+            raise ValueError("on must be a YYYY-MM-DD date") from exc
+
     def home(self) -> dict:
         now = self.clock.now()
         with self.session() as session:
@@ -327,13 +376,22 @@ class BoardStore:
             if own_session:
                 session.close()
 
-    def _day_cards(self, rows: list[CalendarEvent], names: dict[str, str], now: datetime) -> list[dict]:
+    def _day_cards(
+        self,
+        rows: list[CalendarEvent],
+        names: dict[str, str],
+        now: datetime,
+        bounds: tuple[datetime, datetime] | None = None,
+        label_now: datetime | None = None,
+    ) -> list[dict]:
+        start, end = bounds or _local_day_bounds(now)
+        label_now = label_now or now
         cards = []
         for member_id, display_name in (*names.items(), (None, "Everyone")):
             events = [
-                self._event_payload(row, names, now)
+                self._event_payload(row, names, label_now)
                 for row in sorted(
-                    (row for row in rows if row.member_id == member_id and _overlaps_today(row, now)),
+                    (row for row in rows if row.member_id == member_id and _overlaps_bounds(row, start, end)),
                     key=lambda row: _aware(row.start),
                 )
             ]
@@ -398,11 +456,19 @@ def _event_end(row: CalendarEvent) -> datetime:
     return _aware(row.start)
 
 
-def _overlaps_today(row: CalendarEvent, now: datetime) -> bool:
-    day_start, day_end = _local_day_bounds(now)
+def _bounds_for_date(day: date) -> tuple[datetime, datetime]:
+    start = datetime.combine(day, time.min, tzinfo=HOUSEHOLD_TZ)
+    return start.astimezone(UTC), (start + timedelta(days=1)).astimezone(UTC)
+
+
+def _overlaps_bounds(row: CalendarEvent, day_start: datetime, day_end: datetime) -> bool:
     start = _aware(row.start)
     end = _event_end(row)
     return start < day_end and end > day_start
+
+
+def _overlaps_today(row: CalendarEvent, now: datetime) -> bool:
+    return _overlaps_bounds(row, *_local_day_bounds(now))
 
 
 def _is_upcoming(row: CalendarEvent, now: datetime) -> bool:
