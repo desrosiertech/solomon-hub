@@ -32,8 +32,8 @@ The reference's shape: one Linux VPS running Docker, with Traefik on public :443
 | Reference | Solomon | Reason |
 |---|---|---|
 | Public VPS behind Traefik on :443 with Let's Encrypt | **On-prem host on the LAN; remote access only over Tailscale; no inbound ports** (ADR-0005) | Brief: LAN-only, no public port forwarding, household data stays in the network |
-| Claude via a hosted portal as the agent model | **Local open-weight model via Ollama by default**; cloud is opt-in per request (ADR-0001) | Brief: no household data to AI providers by default |
-| Gemini Flash (via a cloud service) for receipt and menu extraction | **Local Tesseract/PaddleOCR + rules, then a local VLM**; cloud only with per-request approval | Same |
+| Claude via a hosted portal as the agent model | **Same shape, adopted as the start** (ADR-0008): Hermes on the Solomon VM, Claude Opus through Nous Portal. The app stays on the LAN. A local model remains the later brain (ADR-0006) | The Household asked to start here so receipts and recipes can be read |
+| Gemini Flash (via a cloud service) for receipt and menu extraction | **The same Opus path reads receipts and recipes** (ADR-0009). No second cloud extractor. Local OCR when Opus is off | One model path |
 | Honcho memory (Postgres + pgvector) | **Hermes built-in memory limited to conversational preferences; household facts live only in Solomon's DB** | Brief: don't depend on agent memory as a database |
 | AgentMail inbox for the agent | **Dedicated hosted mailbox polled by a deterministic intake service, never Hermes directly** (ADR-0003) | Untrusted email must not reach the agent as instructions; provider choice is a privacy trade-off |
 | Scanner → SFTP → agent classifies at 85% or higher, then auto-writes | **Scanner/email/camera → Intake item → local extraction → Proposed change; auto-apply only for low-risk types the Household opts into** | Brief: documents create proposals; never infer a vaccine from an invoice |

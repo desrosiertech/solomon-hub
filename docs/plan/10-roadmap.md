@@ -29,15 +29,15 @@ Effort is relative (S/M/L), not calendar time. Each phase ends with acceptance t
 
 ## Phase 2 — meals, inventory, quiet suggestions, intake
 
-**Deliverables:** food engine + UI (`06-food-engine.md`); Review queue; local OCR path; dedicated mailbox intake (ADR-0003); first ticket `001`.
+**Deliverables:** food engine + UI (`06-food-engine.md`); Review queue; receipt and recipe reading (ADR-0009); dedicated mailbox intake (ADR-0003); tickets `001` and `003`.
 
 **Depends on:** Phase 1 auth and Home layout.
 
 **Acceptance:**
 
 - Ticket 001 (AI off).
-- Forward one receipt from an approved sender → Review queue → apply three lines → Inventory updates. **No cloud AI call** (`cloud_request` table empty).
-- Duplicate of the same receipt (camera + email) does not double-add.
+- An Adult submits one receipt photo → proposed lines → one tap → Inventory updates (ADR-0009). The reader is Claude Opus through Nous Portal when it is signed in.
+- Duplicate of the same receipt (photo and email) does not double-add.
 - A vet invoice does not create a vaccine Record.
 
 **Effort:** L.

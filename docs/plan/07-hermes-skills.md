@@ -10,7 +10,7 @@ Claim labels below are from the planning-pass research; anything not yet confirm
 | Provider | Local OpenAI-compatible URL (Ollama). No cloud key in the Hermes env by default |
 | Network | Container on an internal Compose network. Publishes nothing on the WAN. Reaches only Solomon's Tool base URL and Ollama |
 | Auth | Hermes authenticates to Solomon as a service account with the "propose + read allow-listed" grant. Household Members are Solomon users, not Hermes users |
-| Memory | On, for what an Adult says in Solomon (ADR-0007). `MEMORY.md` and `USER.md` carry it into the next session. Email, OCR, and other untrusted text cannot write memory. SQLite remains the inventory record |
+| Memory | On, for what an Adult says in Solomon (ADR-0007). `MEMORY.md` and `USER.md` carry it into the next session. A receipt, a recipe page, and other untrusted text cannot write memory. Inventory and the recipe bank live in SQLite (ADR-0009) |
 | Tools | Allow-list in Hermes config: the Solomon Tools below. **No** terminal, **no** code execution, **no** browser unless a later ticket adds a fetch Tool that cannot see the LAN |
 | HA | Not through Hermes. Solomon's Devices service talks to HA |
 | Messaging | Solomon web chat is the default. Discord optional and off. Email is not a Hermes gateway (ADR-0003) |

@@ -153,3 +153,19 @@ Portions of a cooked Planned meal tracked as an Inventory item with its own Esti
 
 **Shopping list**:
 The weekly list split into "needed for planned meals" and "optional restock", excluding items confidently available.
+
+**Receipt**:
+A photo or screenshot of a store receipt. Confirmed lines become Observations on Inventory items. Where the food is kept (fridge, freezer, pantry, counter) is its Storage location.
+_Avoid_: Memory, pantry (when you mean everything the Household has)
+
+**Recipe**:
+A banked dish: title, ingredients, and steps, captured from a URL, a screenshot, a photo of a book page, or typed by an Adult.
+_Avoid_: Memory, note
+
+**Recipe bank**:
+The Household's saved Recipes. Planned meals and the Shopping list draw from it across weeks.
+_Avoid_: Hermes memory, cookbook file
+
+**Hermes memory**:
+The short preference notes Hermes loads next session. It is not Inventory and it is not the Recipe bank.
+_Avoid_: Pantry, Solomon's memory (when you mean Records)

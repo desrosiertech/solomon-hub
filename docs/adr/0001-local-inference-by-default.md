@@ -2,7 +2,7 @@
 
 Solomon's default AI path is an on-LAN OpenAI-compatible endpoint (Ollama first). Household content is not sent to a model provider unless a Member approves that one request and sees what would leave. The product stays useful with the provider disabled.
 
-**Status:** accepted (planning). Configuration C stands. The hardware host in the paragraphs below is superseded by ADR-0006 (2026-10-24): the model VM lives on DeepThink, beside Home Assistant, not on Skynet.
+**Status:** accepted (planning), then narrowed. The hardware host in the paragraphs below is superseded by ADR-0006. The daily brain is superseded by ADR-0008 (2026-10-24): Hermes starts on Claude Opus through Nous Portal. A later local model on DeepThink remains the path that does not leave the house. Grocery still runs with the provider disabled.
 
 ## Considered options
 
@@ -10,7 +10,7 @@ Solomon's default AI path is an on-LAN OpenAI-compatible endpoint (Ollama first)
 - **B. Locally hosted Hermes calling a paid cloud API.** Same as the friend's hub. Prompts leave the house. A rented GPU is also off-premises. Better tool-use, worse privacy and a recurring bill.
 - **C. Local by default, cloud only after per-request approval (chosen).** Keeps A as the daily path. Unlocks a stronger model for a hard receipt or a travel brief, with a visible disclosure. Needs a provider interface and a `cloud_request` audit row.
 
-A private server calling an API is still cloud inference. Option B is rejected as the *default*.
+A private server calling an API is still cloud inference. Option B was rejected here as the default. ADR-0008 reverses that for the starting brain: Claude Opus through Nous Portal. A local model remains the later path.
 
 ## Why Ollama first
 

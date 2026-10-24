@@ -52,7 +52,7 @@ Corrections are stored in `record_revision(table, record_id, revision, before_js
 
 ## Meals
 
-- `recipe(id, title, source_url?, source_kind = url|photo|manual, servings, steps_json, image_path?, original_qr_text)`
+- `recipe(id, title, source_url?, source_kind = url|screenshot|book_photo|typed, servings, steps_json, image_path?, original_qr_text)`
 - `recipe_ingredient(recipe_id, canonical_food_id?, text, qty?, unit?, optional)`
 - `planned_meal(id, date, slot = dinner, recipe_id?, free_text?, headcount, planned_by, status = planned|cooked|skipped)`: edits are revisions; there are no silent overwrites.
 - `meal_rating(planned_meal_id, member_id, stars, note)`

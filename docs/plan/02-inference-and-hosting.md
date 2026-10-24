@@ -2,11 +2,11 @@
 
 **No latency or VRAM-fit number in this file is a measurement.** Phase 0 runs `bench/` on the real box. Labels: **documented** / **experimental** / **blocked by a third-party API**.
 
-Recommendation: **configuration C** (ADR-0001). The model VM is on DeepThink, beside Home Assistant OS (ADR-0006). Skynet stays Plex. Tailscale for remote access (ADR-0005). Cloudflare Tunnel off.
+Recommendation: **start on configuration B** (ADR-0008). Hermes on the Solomon VM calls Claude Opus through Nous Portal. The DeepThink Ollama VM (ADR-0006) is the later local brain. Skynet stays Plex. Tailscale for remote access (ADR-0005). Cloudflare Tunnel off. Grocery still runs with the provider disabled.
 
 ## Three configurations
 
-| | A. Fully local | B. Local Hermes, cloud API | C. Local default + approved cloud (chosen) |
+| | A. Fully local | B. Local Hermes, cloud API (starting brain) | C. Local default + approved cloud |
 |---|---|---|---|
 | Privacy | Prompts stay on LAN | Prompts leave on every turn | Prompts stay unless an Adult approves that request |
 | Reliability | Needs the box up; no vendor outage | Needs internet + vendor | Local path works offline; cloud is extra |
@@ -44,7 +44,7 @@ Do not invent a winner. On Phase 0 day, pull whatever `https://ollama.com/librar
 | Stronger local | 20–32B Q4 or a 12B VLM | Varies (Llama community / Gemma terms / Apache) |
 | OCR without VLM | Tesseract (Apache-2.0) in the Solomon image | Always available, AI off |
 
-Vision/OCR for receipts is **local first**. A cloud VLM is a Cloud request approval.
+Vision for receipts and recipe photos starts with Claude Opus through Nous Portal (ADR-0008, ADR-0009). Local OCR remains the fallback when that model is off.
 
 ## Electricity
 
@@ -86,7 +86,7 @@ Assumptions: 4k input + 400 output tokens per "turn"; 30 / 150 / 600 turns per m
 | Normal | 150 | 0.60M / 0.06M | ~$0.27 |
 | Heavy | 600 | 2.4M / 0.24M | ~$1.08 |
 
-A Sonnet-class month at "heavy" is still tens of dollars, not hundreds — **privacy, not price, is why C's default is local**.
+Those bands are a cheap cloud model, not Opus. Portal lists its own per-token rates, and an Opus month follows how often chat, receipts, and recipe reads run. The Household accepted that bill to start here (ADR-0008).
 
 Ollama itself is free. Ollama Cloud (if someone turns it on) is a paid off-box API; treat it as B.
 
@@ -96,7 +96,6 @@ See `bench/README.md` for the KV formula. Speech (Whisper + Piper) lives on HA i
 
 ## Decision points
 
-1. Run the interim 3B VM on DeepThink now (ADR-0006). Home Assistant keeps its own VM.
-2. After the RAM upgrade, run `bench/run_benchmark.py` against the 8B candidate on that same VM.
-3. If the daily model misses the pass bar, a faster GPU means a different computer. This Small chassis is not the upgrade path.
-4. Cloud stays locked until an Adult opts in and we have the disclosure UI.
+1. Start Hermes on Claude Opus through Nous Portal (ADR-0008). Home Assistant keeps its own VM. No Ollama VM yet.
+2. When a model must stay on the LAN, stand up the DeepThink VM in ADR-0006 and run `bench/run_benchmark.py` against the 8B candidate.
+3. If that local model misses the pass bar, a faster GPU means a different computer. This Small chassis is not the upgrade path.

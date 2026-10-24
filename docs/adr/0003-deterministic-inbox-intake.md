@@ -15,7 +15,7 @@ Solomon has its own inbound mailbox (not anyone's personal Gmail). A Domain serv
 
 | Type | Default |
 |---|---|
-| Grocery receipt (local OCR) | Proposed change; one-tap apply |
+| Grocery receipt (read by the starting model; local OCR if that model is off) | Proposed change; one-tap apply |
 | Order / shipping | Proposed change |
 | Recipe | Proposed change |
 | Trip | Proposed change |
@@ -27,7 +27,7 @@ Approved senders only, plus an explicit "allow this sender" action. Spoofing: co
 
 ## Security rules
 
-- Tokens live in the host secret store. No credentials, raw bodies or attachments in logs or in any model prompt.
+- Tokens live in the host secret store. No credentials or raw mail bodies in logs. An Adult-submitted receipt or recipe is sent to the starting model so it can be read (ADR-0008, ADR-0009). Mail is still not a prompt, and Hermes still has no mailbox credentials.
 - Attachments: documented MIME allow-list and size cap; AV/type sniff; no link-following; no executing attachments.
 - Email body, attachments, links and OCR text are **untrusted data**. The extractor never treats them as instructions (see the injection fixture in `bench/household-tasks.json`).
 - Originals stay on disk with `retention_until`. Search, export, permanent deletion and disconnect are first-class.

@@ -7,9 +7,8 @@ Checked 2026-10-24 against current primary docs. Labels: **documented** / **expe
 | Calendar (Google + manual) | **Supported now** (read); write needs care | Scopes exist (`calendar.readonly`, `calendar.events`, …). **[documented]** https://developers.google.com/workspace/calendar/api/auth . External *Testing* OAuth refresh tokens expire in **7 days**. **[documented]** https://developers.google.com/identity/protocols/oauth2 . Publish the Cloud project (accept the unverified-app screen) or expect weekly re-auth. Allow-list calendar IDs. Manual events work with no Google. |
 | Google Tasks | **Supported now** if selected | `tasks` / `tasks.readonly`. **[documented]** https://developers.google.com/workspace/tasks/auth . Same OAuth-testing trap. |
 | Food engine + grocery slice | **Supported now** | Pure code. Ticket 001. |
-| Receipt OCR (local) | **Needs prototype** | Tesseract + rules in-process. Accuracy on grocery photos is unmeasured. **[experimental]** |
-| Local VLM for messy lines | **Needs prototype** | Depends on VRAM (ADR-0001). |
-| Cloud vision | **Blocked by policy (ours)** | Allowed only with Cloud request approval. |
+| Receipt and recipe reading | **Needs prototype** | Claude Opus through Nous Portal reads a receipt, a screenshot, a book photo, or a recipe URL (ADR-0008, ADR-0009). Local OCR remains the fallback when the model is off. Accuracy is unmeasured. **[experimental]** |
+| Cloud vision | **Chosen for the start** | The starting brain is off-LAN. The image or page the Adult submitted is what leaves. |
 | News digest | **Supported now** | RSS/Atom, timestamps, dedup, links. No generative "research" agent. |
 | Weather | **Supported now** (US) | NWS API, free, User-Agent required, ~7-day forecast. **[documented]** https://www.weather.gov/documentation/services-web-api . Open-Meteo is a fallback (non-commercial terms — re-read https://open-meteo.com/en/terms). Do not invent past the horizon. |
 | Blink snapshots + arming | **Supported now** via HA; **fragile** | HA integration is **Cloud Polling**, **no live view**. **[documented]** https://www.home-assistant.io/integrations/blink/ . Protocol is unofficial (`blinkpy`, reverse-engineered). **[blocked by a third-party API]** Vendor EU portability API shares no video. **[documented]** https://support.blinkforhome.com/en_US/transfer-your-blink-data-to-third-parties |

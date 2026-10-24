@@ -1,6 +1,6 @@
 # Solomon plan (2026-10-24)
 
-Vocabulary: `GLOSSARY.md`. Decisions: `docs/adr/`. Grocery slice: `docs/tickets/001-grocery-vertical-slice.md` (on main). Next ticket: `docs/tickets/002-interim-local-model.md`.
+Vocabulary: `GLOSSARY.md`. Decisions: `docs/adr/`. Grocery slice: `docs/tickets/001-grocery-vertical-slice.md` (on main). Next ticket: `docs/tickets/003-portal-receipts-and-recipes.md`. The local-model ticket (`002`) waits.
 
 ## How to read this
 
@@ -30,6 +30,8 @@ Vocabulary: `GLOSSARY.md`. Decisions: `docs/adr/`. Grocery slice: `docs/tickets/
 | [0005](../adr/0005-tailscale-and-optional-cloudflare-tunnel.md) | Tailscale for remote/admin; Cloudflare Tunnel off; two Adult admins; Overseerr on the tailnet |
 | [0006](../adr/0006-model-vm-on-deepthink.md) | Daily model VM on DeepThink, beside Home Assistant |
 | [0007](../adr/0007-hermes-learns-from-adults.md) | What Adults tell Solomon trains Hermes memory and skills |
+| [0008](../adr/0008-opus-via-nous-portal.md) | Starting brain: Claude Opus through Nous Portal |
+| [0009](../adr/0009-receipts-and-recipe-bank.md) | Receipts fill Inventory; recipes are banked |
 
 ## Claim labels
 
