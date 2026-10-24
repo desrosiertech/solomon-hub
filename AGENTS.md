@@ -1,6 +1,6 @@
 # Solomon
 
-A private, LAN-first household dashboard and assistant. The repo is in its **planning** stage: no app code yet. Build nothing past the plan until a ticket says so.
+A private, LAN-first household dashboard and assistant. The first runnable slice is the grocery / food engine with `ModelProvider = Disabled`. Do not expand past the current ticket into Google, Blink, cloud AI, Hermes, voice, email intake, or deploy.
 
 ## Before changing anything
 

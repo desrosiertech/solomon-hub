@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: #faf7f2;
+  --color-card: #ffffff;
+  --color-ink: #2c261c;
+  --color-muted: #6b6256;
+  --color-line: #e6dfd4;
+  --color-sage: #6d7f67;
+  --color-sage-soft: #e7eee4;
+  --color-sand: #c4a574;
+  --color-sand-soft: #f3eadc;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family:
+    "Iowan Old Style", "Palatino Linotype", Palatino, "Times New Roman", serif;
+}

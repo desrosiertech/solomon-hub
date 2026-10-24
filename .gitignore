@@ -4,3 +4,9 @@ __pycache__/
 .env
 *.egg-info/
 .scratch/
+.pytest_cache/
+data/
+*.db
+node_modules/
+web/dist/
+web/node_modules/
