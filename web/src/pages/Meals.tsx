@@ -23,19 +23,19 @@ export function MealsPage() {
 
   return (
     <div className="grid gap-6">
-      <section className="rounded-2xl border border-line bg-card p-5 shadow-sm">
+      <section className="rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-2xl">Ideas from what we have</h2>
           {card?.state === "stale" && (
-            <p className="rounded-full bg-sand-soft px-3 py-1 text-sm text-ink">
+            <p className="rounded-full bg-wash px-3 py-1 text-sm text-ink">
               {staleLabel(card.generated_at, card.now)}
             </p>
           )}
         </div>
         {meals.isPending && (
           <div className="space-y-3" aria-busy="true" aria-label="Loading dinner ideas">
-            <div className="h-16 animate-pulse rounded-xl bg-sand-soft" />
-            <div className="h-16 animate-pulse rounded-xl bg-sand-soft" />
+            <div className="h-16 animate-pulse rounded-xl bg-wash" />
+            <div className="h-16 animate-pulse rounded-xl bg-wash" />
           </div>
         )}
         {card?.state === "empty" && (
@@ -46,7 +46,7 @@ export function MealsPage() {
         )}
         {meals.data && card?.state !== "empty" && <IdeasList ideas={meals.data.ideas} />}
       </section>
-      <section className="rounded-2xl border border-line bg-card p-5 shadow-sm">
+      <section className="rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
         <h2 className="mb-1 text-2xl">Use soon</h2>
         <p className="mb-3 text-sm text-muted">
           Quiet freshness notes. These are estimated use-by windows, not alerts.

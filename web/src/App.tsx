@@ -5,6 +5,7 @@ import { AuditPage } from "./pages/Audit";
 import { HomePage } from "./pages/Home";
 import { InventoryPage } from "./pages/Inventory";
 import { MealsPage } from "./pages/Meals";
+import { ThemeSwitch } from "./ui/ThemeSwitch";
 
 const TABS = [
   { id: "home", label: "Home" },
@@ -20,15 +21,13 @@ export function App() {
   const provider = useQuery({ queryKey: ["provider"], queryFn: api.provider });
 
   return (
-    <div className="min-h-screen bg-canvas text-ink">
-      <header className="mx-auto flex max-w-5xl items-end justify-between px-6 pt-8 pb-4">
-        <div>
-          <p className="text-sm tracking-wide text-muted">Solomon</p>
-          <h1 className="text-4xl font-semibold">Household kitchen</h1>
+    <div className="min-h-screen bg-canvas font-sans text-ink">
+      <header className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 pt-8 pb-6">
+        <h1 className="text-4xl font-semibold tracking-tight">Solomon</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm text-muted tabular-nums">AI: {provider.data?.name ?? "…"}</p>
+          <ThemeSwitch />
         </div>
-        <p className="rounded-full bg-sage-soft px-3 py-1 text-sm text-sage">
-          AI: {provider.data?.name ?? "…"}
-        </p>
       </header>
 
       <main className="mx-auto max-w-5xl px-6 pb-28">
@@ -38,7 +37,7 @@ export function App() {
         {tab === "audit" && <AuditPage />}
       </main>
 
-      <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-card/95">
+      <nav className="fixed inset-x-0 bottom-0 border-t border-line bg-card">
         <div className="mx-auto flex max-w-5xl justify-around py-3">
           {TABS.map((item) => (
             <button
@@ -46,7 +45,7 @@ export function App() {
               type="button"
               onClick={() => setTab(item.id)}
               className={`rounded-full px-4 py-2 text-lg ${
-                tab === item.id ? "bg-sage-soft text-ink" : "text-muted"
+                tab === item.id ? "bg-wash text-ink" : "text-muted"
               }`}
             >
               {item.label}

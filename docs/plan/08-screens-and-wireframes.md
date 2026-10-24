@@ -6,11 +6,13 @@ Status: proposed.
 
 ## Design language
 
-- A warm off-white canvas (`#FAF7F2`-ish), white cards with 1px warm-grey borders and soft shadows, and 16–20px radii.
+Recorded in `DESIGN.md` and `PRODUCT.md`. Three themes: light, navy, and dark. The canvas is cool, not warm paper. Sora is the UI face. One section is one surface; rows inside it are hairlines, not nested cards. Accent is a single blue used for the action and the focus ring.
+
+- Cards use a 1px line, a soft downward shadow, and 16–20px radii.
 - Accent colors per Member: used for calendar blocks, card headers and avatars. Every color is paired with an initial or icon, so color is never the only cue.
 - Large type on the wall view (body 22–24px, headings 32–40px, clock 72px or more). The TV view scales everything to about 1.5× for a 10-foot distance.
 - A compact bottom navigation (icons with labels) and a persistent right rail (time, weather, tonight's dinner, next up).
-- Food freshness uses neutral and warm tones (sage and sand). **No red, no alert icons, no badges with counts on food.**
+- Food freshness uses the theme's ink and muted text on wash. **No red, no alert icons, no badges with counts on food.**
 - Input: horizontal swipe between primary views on touch; arrow and Enter focus navigation on TV, with a visible focus ring; keyboard and mouse on desktop. Swipe always has visible arrow buttons as an accessible alternative.
 
 ## Screen map
@@ -65,7 +67,7 @@ The **primary rotation** (swipe order) is Home → Calendar → Meals → Weathe
 
 - The Member cards use accent color plus initial. A child or guest Display shows Household events and the child's own only.
 - The Use soon row offers inline one-tap Corrections (`Used`, `Toss`, `Still good`). The `⋯` menu holds `Not now` (Dismissal) and `Stop asking` (Suppression rule). After a tap the line collapses with "Got it · Undo" for 8 seconds.
-- Food cards never use red or badges. "May be past window" is grey-sand text.
+- Food cards never use red or badges. "May be past window" is muted text on the card.
 - Data: `GET /api/home` returns one bundle (calendar today plus 2 days, weather snapshot, tonight's Planned meal, top-3 Meal ideas, top-3 Use soon, review count). It is cached server-side and polled every 60–120 s.
 
 ## Wireframe 2: Meals (wall and desktop)

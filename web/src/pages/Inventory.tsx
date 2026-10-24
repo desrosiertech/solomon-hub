@@ -76,7 +76,7 @@ export function InventoryPage() {
 
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_1.2fr]">
-      <form onSubmit={onSubmit} className="space-y-3 rounded-2xl border border-line bg-card p-5 shadow-sm">
+      <form onSubmit={onSubmit} className="space-y-3 rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
         <h2 className="text-2xl">Add groceries</h2>
         <label className="block text-sm text-muted">
           Name
@@ -133,7 +133,7 @@ export function InventoryPage() {
         </label>
         <button
           type="submit"
-          className="rounded-full bg-sage px-4 py-2 text-white"
+          className="rounded-full bg-accent px-4 py-2 text-on-accent disabled:opacity-50"
           disabled={add.isPending}
         >
           Add item
@@ -171,12 +171,12 @@ export function InventoryPage() {
           </button>
         </div>
       </form>
-      <section className="rounded-2xl border border-line bg-card p-5 shadow-sm">
+      <section className="rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
         <h2 className="mb-3 text-2xl">On hand</h2>
         {items.isPending && <p className="text-muted">Loading inventory…</p>}
-        <ul className="space-y-3">
+        <ul className="divide-y divide-line">
           {items.data?.items.map((item) => (
-            <li key={item.id} className="rounded-xl bg-canvas px-4 py-3">
+            <li key={item.id} className="py-3 first:pt-0 last:pb-0">
               <p className="text-lg">
                 {item.label}
                 {item.leftover ? " · leftover" : ""}

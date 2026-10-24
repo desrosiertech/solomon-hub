@@ -5,9 +5,9 @@ export function IdeasList({ ideas }: { ideas: MealIdea[] }) {
     return <p className="text-muted">No dinners from what we have right now.</p>;
   }
   return (
-    <ul className="space-y-3">
+    <ul className="divide-y divide-line">
       {ideas.map((idea) => (
-        <li key={idea.key} className="rounded-xl bg-sage-soft/60 px-4 py-3">
+        <li key={idea.key} className="py-3 first:pt-0 last:pb-0">
           <p className="text-lg font-medium">{idea.title}</p>
           {idea.have.length > 0 && (
             <p className="text-sm text-muted">Have: {idea.have.join(", ")}</p>
