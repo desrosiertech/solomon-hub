@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
+import { BringIn } from "../ui/BringIn";
 import { IdeasList } from "../ui/IdeasList";
 import { UseSoonList } from "../ui/UseSoonList";
 
@@ -54,6 +55,7 @@ export function MealsPage() {
         {meals.isPending && <p className="text-muted">Checking estimated use-by windows…</p>}
         {meals.data && <UseSoonList rows={meals.data.use_soon} />}
       </section>
+      <BringIn />
     </div>
   );
 }

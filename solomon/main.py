@@ -3,13 +3,22 @@ from __future__ import annotations
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from solomon.clock import AppClock
-from solomon.provider import DisabledProvider
+from solomon.intake import (
+    accept_recipe,
+    apply_receipt,
+    list_planned,
+    list_recipes,
+    plan_meal,
+    propose_recipe,
+    submit_receipt,
+)
+from solomon.provider import DisabledProvider, ModelProvider, ReaderOff
 from solomon.service import FoodStore, make_engine, seed_if_empty
 
 DEFAULT_DB = Path("data/solomon.db")
@@ -38,10 +47,27 @@ class StopAskingIn(BaseModel):
     key: str
 
 
+class ApplyIn(BaseModel):
+    lines: list[dict] = Field(default_factory=list)
+
+
+class RecipeUrlIn(BaseModel):
+    source_kind: str
+    url: str | None = None
+
+
+class PlanIn(BaseModel):
+    on: str
+    recipe_id: str
+
+
 def create_app(
     db_path: Path | str | None = None,
     *,
     clock: AppClock | None = None,
+    provider: ModelProvider | None = None,
+    blob_dir: Path | str | None = None,
+    fetch_page=None,
 ) -> FastAPI:
     path = Path(db_path) if db_path is not None else DEFAULT_DB
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -49,7 +75,8 @@ def create_app(
     with session_for(engine) as session:
         seed_if_empty(session)
     clock = clock or AppClock()
-    store = FoodStore(engine, clock, DisabledProvider())
+    store = FoodStore(engine, clock, provider or DisabledProvider())
+    store.blob_dir = Path(blob_dir) if blob_dir is not None else path.parent / "blobs"
 
     app = FastAPI(title="Solomon", version="0.1.0")
     app.add_middleware(
@@ -63,8 +90,8 @@ def create_app(
     app.state.provider = store.provider
 
     @app.get("/api/provider")
-    def provider() -> dict:
-        return {"name": store.provider.name}
+    def provider_status() -> dict:
+        return store.provider.status()
 
     @app.put("/api/clock")
     def set_clock(body: ClockIn) -> dict:
@@ -115,6 +142,74 @@ def create_app(
     @app.get("/api/audit")
     def audit() -> dict:
         return store.audit()
+
+    @app.post("/api/receipts", status_code=201)
+    async def post_receipt(image: UploadFile = File(...)) -> dict:
+        payload = await image.read()
+        try:
+            return submit_receipt(store, payload)
+        except ReaderOff as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.post("/api/receipts/{receipt_id}/apply")
+    def post_apply(receipt_id: str, body: ApplyIn) -> dict:
+        try:
+            return apply_receipt(store, receipt_id, body.lines)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="receipt not found") from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/api/recipes/proposals", status_code=201)
+    async def post_proposal(request: Request) -> dict:
+        content_type = request.headers.get("content-type", "")
+        url = None
+        picture = None
+        if content_type.startswith("application/json"):
+            body = RecipeUrlIn.model_validate(await request.json())
+            kind = body.source_kind
+            url = body.url
+        else:
+            form = await request.form()
+            kind = str(form.get("source_kind") or "")
+            upload = form.get("image")
+            picture = await upload.read() if upload is not None and hasattr(upload, "read") else None
+        try:
+            return propose_recipe(
+                store,
+                kind=kind or "",
+                image=picture,
+                url=url,
+                fetch_page=fetch_page,
+            )
+        except ReaderOff as exc:
+            raise HTTPException(status_code=409, detail=str(exc)) from exc
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.post("/api/recipes/proposals/{proposal_id}/accept", status_code=201)
+    def post_accept(proposal_id: str) -> dict:
+        try:
+            return accept_recipe(store, proposal_id)
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="proposal not found") from exc
+
+    @app.get("/api/recipes")
+    def recipes() -> dict:
+        return list_recipes(store)
+
+    @app.post("/api/planned-meals", status_code=201)
+    def post_plan(body: PlanIn) -> dict:
+        try:
+            return plan_meal(store, body.on, body.recipe_id)
+        except FileExistsError as exc:
+            raise HTTPException(status_code=409, detail="That night is already planned.") from exc
+        except KeyError as exc:
+            raise HTTPException(status_code=404, detail="recipe not found") from exc
+
+    @app.get("/api/planned-meals")
+    def planned() -> dict:
+        return list_planned(store)
 
     web_dist = Path(__file__).resolve().parent.parent / "web" / "dist"
     if web_dist.is_dir():

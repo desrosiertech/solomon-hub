@@ -55,7 +55,27 @@ def make_engine(db_path: Path | str) -> Engine:
         connection.exec_driver_sql("PRAGMA journal_mode=WAL")
         connection.commit()
     Base.metadata.create_all(engine)
+    _ensure_recipe_columns(engine)
     return engine
+
+
+def _ensure_recipe_columns(engine: Engine) -> None:
+    with engine.begin() as connection:
+        found = connection.exec_driver_sql(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='recipe'"
+        ).first()
+        if found is None:
+            return
+        columns = {row[1] for row in connection.exec_driver_sql("PRAGMA table_info(recipe)")}
+        additions = {
+            "source_kind": "VARCHAR DEFAULT 'seed'",
+            "source_url": "VARCHAR",
+            "steps_json": "TEXT DEFAULT '[]'",
+            "image_path": "VARCHAR",
+        }
+        for name, ddl in additions.items():
+            if name not in columns:
+                connection.exec_driver_sql(f"ALTER TABLE recipe ADD COLUMN {name} {ddl}")
 
 
 def seed_if_empty(session: Session) -> None:
@@ -109,6 +129,7 @@ class FoodStore:
         self.engine = engine
         self.clock = clock
         self.provider = provider or DisabledProvider()
+        self.blob_dir = Path("data/blobs")
         self._session = sessionmaker(bind=engine, expire_on_commit=False)
 
     def session(self) -> Session:
@@ -161,7 +182,7 @@ class FoodStore:
             household = self.household(session)
             settings = settings_from(household)
             confidence = derive_confidence(
-                source="quick_add",
+                source=payload.get("source") or "quick_add",
                 days_since_strong=0.0,
                 window_days=window.window_days,
                 grace_period=settings.grace_period,
@@ -196,7 +217,7 @@ class FoodStore:
                     id=_new_id("obs"),
                     item_id=item.id,
                     kind="acquired",
-                    source="quick_add",
+                    source=payload.get("source") or "quick_add",
                     actor=f"member:{MEMBER_ID}",
                     observed_at=now,
                 )

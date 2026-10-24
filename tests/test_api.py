@@ -52,7 +52,7 @@ def test_provider_is_disabled():
 
 def test_member_adds_three_items_each_with_an_estimated_use_by_window(client):
     spinach, chili, eggs = _add_three(client)
-    assert client.get("/api/provider").json() == {"name": "Disabled"}
+    assert client.get("/api/provider").json()["name"] == "Disabled"
 
     items = {row["label"]: row for row in client.get("/api/inventory").json()["items"]}
     assert set(items) == {"Spinach", "Leftover chili", "Eggs"}

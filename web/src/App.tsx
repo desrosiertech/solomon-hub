@@ -25,7 +25,14 @@ export function App() {
       <header className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 pt-8 pb-6">
         <h1 className="text-4xl font-semibold tracking-tight">Solomon</h1>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-sm text-muted tabular-nums">AI: {provider.data?.name ?? "…"}</p>
+          <p className="text-sm text-muted tabular-nums">
+            AI: {provider.data?.name ?? "…"}
+            {provider.data
+              ? provider.data.signed_in
+                ? " · Portal signed in"
+                : " · Portal not signed in"
+              : ""}
+          </p>
           <ThemeSwitch />
         </div>
       </header>
