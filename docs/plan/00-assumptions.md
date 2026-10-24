@@ -23,19 +23,21 @@ All published skills from `mattpocock/skills@5beb35b` are vendored under `.agent
 
 ## Hardware and network (unverified until Phase 0)
 
-- Home Assistant OS is a Proxmox VM on ThinkCentre M910s "Deepthink" (i7-6700, 16 GB RAM, 240 GB SSD). It is **not** the inference host and does not get all 16 GB.
-- "Skynet" is a Windows Plex server with a GTX 1080 Ti (11 GB). Plex stays; any model test there is opt-in and short-lived.
+- Home Assistant OS is a Proxmox VM on ThinkCentre M910s "Deepthink" (i7-6700, 16 GB RAM, 240 GB SSD). The model lives in a sibling VM on that same host (ADR-0006), never inside HAOS. HA does not get all of the RAM.
+- "Skynet" is a Windows Plex server with a GTX 1080 Ti (11 GB). Plex stays. It is not the model host.
 - UniFi gear + controller, Blink cameras in HA, *arr + Tautulli + qBittorrent, Google Calendar exist. Versions and exact models are unknown.
 - Servers already have reserved/static LAN addresses outside the DHCP pool.
 - Household is in the US (NWS weather is usable). Electricity price uses the latest EIA US residential average until a local rate is supplied.
 - Two dogs, two cars; names and records arrive later via onboarding, never in chat.
-- Samsung OLED TV model/year and the existing media-request site are unknown.
+- The Display is a 65-inch LG C5 (2025, webOS). The media-request app is Overseerr, on the tailnet. Cloudflare Tunnel stays off.
 
 ## Product defaults
 
 - One Household, a handful of Members, one or two Displays.
 - Outbound data policy: **local-only**.
-- Cloudflare Tunnel: **off**.
+- Cloudflare Tunnel: **off**. Overseerr stays on the tailnet for the two Adults.
+- Intake mailbox: a dedicated Gmail, IMAP with an app password (ADR-0003).
+- Tailnet: two Adult admins. No kids group.
 - Discord: **off**.
 - Voice: **off** until Phase 3; the product works without it.
 - Food profile: conservative estimates; `presumed_discard_mode = auto_archive`; dismiss period 7 days; grace 3 days.
@@ -46,5 +48,5 @@ All published skills from `mattpocock/skills@5beb35b` are vendored under `.agent
 | Knob | Placeholder | Change when |
 |---|---|---|
 | Residential electricity | EIA US average, see `02-inference-and-hosting.md` | You supply the local ¢/kWh |
-| Dedicated inference host | Used RTX 3090 24 GB class, if Phase 0 says the 1080 Ti is not enough | You pick a different box |
+| Inference host | DeepThink sibling VM (ADR-0006). 64 GB DDR4 + 1 TB SSD before an 8B | A bench miss means a different computer, not a card in this chassis |
 | Monthly cloud-API usage (if ever enabled) | Light / normal / heavy token bands in that same doc | Real logs exist |

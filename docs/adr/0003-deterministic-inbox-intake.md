@@ -2,7 +2,7 @@
 
 Solomon has its own inbound mailbox (not anyone's personal Gmail). A Domain service polls it, stores originals, extracts locally, and opens Proposed changes. Hermes may *read an already-classified Proposed change* through a Tool. It never has IMAP credentials, never sends or deletes mail, and never sees raw email as "instructions".
 
-**Status:** accepted (planning). The mailbox vendor is *proposed*: a hosted provider with IMAP, not self-hosted mail, not AgentMail-as-the-agent.
+**Status:** accepted. Vendor decided 2026-10-24: a dedicated Gmail address that belongs to Solomon, read over IMAP with an app password. Not either Adult's personal mailbox. Not the Gmail API. A consumer OAuth client in testing mode drops its refresh token after 7 days, which an unattended poller cannot live with. The app password can do more than read; the intake service never sends, replies, or deletes. Hermes still never sees the mailbox.
 
 ## Considered options
 

@@ -1,6 +1,6 @@
 # Solomon plan (2026-10-24)
 
-Planning pass only. No app is scaffolded. Vocabulary: `GLOSSARY.md`. Decisions: `docs/adr/`. First build ticket: `docs/tickets/001-grocery-vertical-slice.md`.
+Vocabulary: `GLOSSARY.md`. Decisions: `docs/adr/`. Grocery slice: `docs/tickets/001-grocery-vertical-slice.md` (on main). Next ticket: `docs/tickets/002-interim-local-model.md`.
 
 ## How to read this
 
@@ -27,7 +27,8 @@ Planning pass only. No app is scaffolded. Vocabulary: `GLOSSARY.md`. Decisions: 
 | [0002](../adr/0002-approachable-local-stack.md) | FastAPI + React + SQLite, on-prem, not inside HAOS |
 | [0003](../adr/0003-deterministic-inbox-intake.md) | Dedicated mailbox + deterministic intake; Hermes never owns mail |
 | [0004](../adr/0004-voice-optional-ha-first.md) | Voice optional; HA Assist is the pipeline; no ambient recording |
-| [0005](../adr/0005-tailscale-and-optional-cloudflare-tunnel.md) | Tailscale for remote/admin; Cloudflare Tunnel off by default |
+| [0005](../adr/0005-tailscale-and-optional-cloudflare-tunnel.md) | Tailscale for remote/admin; Cloudflare Tunnel off; two Adult admins; Overseerr on the tailnet |
+| [0006](../adr/0006-model-vm-on-deepthink.md) | Daily model VM on DeepThink, beside Home Assistant |
 
 ## Claim labels
 

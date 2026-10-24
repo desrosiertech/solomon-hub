@@ -33,9 +33,9 @@ No WAN :80/:443. Optional Cloudflare Tunnel is a *separate* public app, never th
 |---|---|---|
 | Solomon container | Dedicated VM/LXC on reserved LAN IP | ADR-0002 |
 | Hermes container | Same host, no host network, no Docker socket | Isolated gateway |
-| Ollama | Same host or a dedicated inference box | ADR-0001 |
+| Ollama | Sibling VM on DeepThink | ADR-0006. Not inside HAOS |
 | Home Assistant OS | Existing Proxmox VM on Deepthink | Untouched, except a non-admin token and Tailscale |
-| `cloudflared` | Not installed | Until a public page is explicitly added |
+| `cloudflared` | Not installed | Overseerr stays on the tailnet. No public request page |
 
 ## Permissions matrix
 

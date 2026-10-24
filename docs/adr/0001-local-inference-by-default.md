@@ -2,7 +2,7 @@
 
 Solomon's default AI path is an on-LAN OpenAI-compatible endpoint (Ollama first). Household content is not sent to a model provider unless a Member approves that one request and sees what would leave. The product stays useful with the provider disabled.
 
-**Status:** accepted (planning). Hardware pick is *proposed* until Phase 0 measures it.
+**Status:** accepted (planning). Configuration C stands. The hardware host in the paragraphs below is superseded by ADR-0006 (2026-10-24): the model VM lives on DeepThink, beside Home Assistant, not on Skynet.
 
 ## Considered options
 

@@ -73,4 +73,4 @@ Effort is relative (S/M/L), not calendar time. Each phase ends with acceptance t
 
 ## First thin slice
 
-Phase 2 starts with `docs/tickets/001-grocery-vertical-slice.md` (also a GitHub issue). No Google, Blink, or cloud AI.
+Ticket 001 (grocery, AI off) is on main. Next is `docs/tickets/002-interim-local-model.md`: the DeepThink model VM stays optional, and the grocery screens keep working with the model disabled. No Google, Blink, or cloud AI.

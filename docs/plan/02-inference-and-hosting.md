@@ -2,7 +2,7 @@
 
 **No latency or VRAM-fit number in this file is a measurement.** Phase 0 runs `bench/` on the real box. Labels: **documented** / **experimental** / **blocked by a third-party API**.
 
-Recommendation: **configuration C** (ADR-0001). Dedicated Solomon+Ollama host (or VM) on the LAN. Deepthink stays HAOS. Skynet stays Plex. Tailscale for remote access (ADR-0005). Cloudflare Tunnel off.
+Recommendation: **configuration C** (ADR-0001). The model VM is on DeepThink, beside Home Assistant OS (ADR-0006). Skynet stays Plex. Tailscale for remote access (ADR-0005). Cloudflare Tunnel off.
 
 ## Three configurations
 
@@ -25,7 +25,7 @@ A private server calling an API **is still B**. A rented GPU is off-premises.
 
 | Box | Role | Fit |
 |---|---|---|
-| Deepthink i7-6700 / 16 GB / HAOS VM | Device authority only | Do not put Ollama here. HA already wants RAM. Whisper `base-int8` *inside HA* for voice is a Phase 3 maybe. **[experimental]** |
+| Deepthink i7-6700 / 16 GB / HAOS VM | Device authority, and the host of the model VM (ADR-0006) | Ollama runs in a sibling VM, never inside HAOS. 16 GB holds a 3B interim guest. 64 GB (4×16 DDR4 UDIMM) is the buy that lets an 8B sit beside HA. The supply is 180 W or 210 W. **[documented]** Lenovo PSREF. Latency is still **[experimental]**. |
 | Skynet + GTX 1080 Ti 11 GB | Plex first | Ollama lists the 1080 Ti (CC 6.1) as supported with driver **570+**. **[documented]** https://github.com/ollama/ollama/blob/main/docs/gpu.md . A short bench is OK. Pinning a daily model here is **experimental** until a transcode + model run is measured. TDP 250 W (NVIDIA spec). |
 | Dedicated host (proposed if bench fails) | Solomon + Ollama | Used RTX 3090 24 GB (~350 W) or 4060 Ti 16 GB (~160 W), or 32 GB+ unified memory (Mac mini M4 / Ryzen AI Max+). Pick after numbers, not before. |
 
@@ -96,7 +96,7 @@ See `bench/README.md` for the KV formula. Speech (Whisper + Piper) lives on HA i
 
 ## Decision points
 
-1. Run `bench/run_benchmark.py` on Skynet (Plex idle and transcoding) and, if needed, on a spare box.
-2. If the daily model meets the pass bar without starving Plex → stay on the 1080 Ti for Phase 1–2, dedicated later.
-3. If it fails → buy/repurpose a dedicated ≥16 GB card; do not steal Deepthink from HA.
+1. Run the interim 3B VM on DeepThink now (ADR-0006). Home Assistant keeps its own VM.
+2. After the RAM upgrade, run `bench/run_benchmark.py` against the 8B candidate on that same VM.
+3. If the daily model misses the pass bar, a faster GPU means a different computer. This Small chassis is not the upgrade path.
 4. Cloud stays locked until an Adult opts in and we have the disclosure UI.
