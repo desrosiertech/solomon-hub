@@ -1,3 +1,9 @@
+# Solomon
+
+Private, LAN-first household dashboard. **Planning only** — see [`docs/plan/README.md`](docs/plan/README.md). Decisions live in [`docs/adr/`](docs/adr/). First build ticket: [`docs/tickets/001-grocery-vertical-slice.md`](docs/tickets/001-grocery-vertical-slice.md).
+
+---
+
 # Matt Pocock skills
 
 Vendored copies of every published skill from [mattpocock/skills](https://github.com/mattpocock/skills), installed for Cursor.
