@@ -6,6 +6,7 @@ import { CalendarPage } from "./pages/Calendar";
 import { HomePage } from "./pages/Home";
 import { InventoryPage } from "./pages/Inventory";
 import { MealsPage } from "./pages/Meals";
+import { NewsPage } from "./pages/News";
 import { WeatherPage } from "./pages/Weather";
 import { ThemeSwitch } from "./ui/ThemeSwitch";
 
@@ -14,6 +15,7 @@ const TABS = [
   { id: "calendar", label: "Calendar" },
   { id: "meals", label: "Meals" },
   { id: "weather", label: "Weather" },
+  { id: "news", label: "News" },
   { id: "inventory", label: "Inventory" },
   { id: "audit", label: "History" },
 ] as const;
@@ -46,6 +48,7 @@ export function App() {
         {tab === "calendar" && <CalendarPage />}
         {tab === "meals" && <MealsPage />}
         {tab === "weather" && <WeatherPage />}
+        {tab === "news" && <NewsPage />}
         {tab === "inventory" && <InventoryPage />}
         {tab === "audit" && <AuditPage />}
       </main>

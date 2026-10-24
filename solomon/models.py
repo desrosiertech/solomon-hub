@@ -179,6 +179,16 @@ class WeatherSnapshot(Base):
     observed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
 
+class Headline(Base):
+    __tablename__ = "headline"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    title: Mapped[str] = mapped_column(String)
+    url: Mapped[str] = mapped_column(String)
+    published_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    source_name: Mapped[str | None] = mapped_column(String)
+
+
 class SourceStatus(Base):
     __tablename__ = "source_status"
 
