@@ -371,6 +371,7 @@ class FoodStore:
                 "ideas_card": {
                     "state": state,
                     "generated_at": generated_at.isoformat() if generated_at else None,
+                    "now": now.isoformat(),
                 },
             }
 

@@ -31,6 +31,7 @@ export type MealIdea = {
 export type IdeasCard = {
   state: "empty" | "ready" | "stale";
   generated_at: string | null;
+  now: string | null;
 };
 
 export type MealsPayload = {

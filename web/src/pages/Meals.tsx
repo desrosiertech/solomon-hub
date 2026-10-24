@@ -3,12 +3,13 @@ import { api } from "../api";
 import { IdeasList } from "../ui/IdeasList";
 import { UseSoonList } from "../ui/UseSoonList";
 
-function staleLabel(generatedAt: string | null): string {
+function staleLabel(generatedAt: string | null, nowIso: string | null): string {
   if (!generatedAt) {
     return "Updated earlier";
   }
   const generated = new Date(generatedAt);
-  const minutes = Math.max(0, Math.round((Date.now() - generated.getTime()) / 60000));
+  const now = nowIso ? new Date(nowIso).getTime() : Date.now();
+  const minutes = Math.max(0, Math.round((now - generated.getTime()) / 60000));
   if (minutes < 60) {
     return `Updated ${minutes} min ago`;
   }
@@ -27,7 +28,7 @@ export function MealsPage() {
           <h2 className="text-2xl">Ideas from what we have</h2>
           {card?.state === "stale" && (
             <p className="rounded-full bg-sand-soft px-3 py-1 text-sm text-ink">
-              {staleLabel(card.generated_at)}
+              {staleLabel(card.generated_at, card.now)}
             </p>
           )}
         </div>

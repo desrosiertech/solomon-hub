@@ -178,3 +178,6 @@ def test_meals_ideas_card_is_stale_after_two_hours_without_a_refresh(client):
     assert meals["ideas"]
     generated = datetime.fromisoformat(meals["ideas_card"]["generated_at"])
     assert generated.astimezone(UTC) == datetime(2026, 10, 23, 12, 0, tzinfo=UTC)
+    assert datetime.fromisoformat(meals["ideas_card"]["now"]).astimezone(UTC) == datetime(
+        2026, 10, 23, 14, 0, tzinfo=UTC
+    )
