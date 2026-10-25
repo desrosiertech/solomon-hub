@@ -7,6 +7,7 @@ import { InventoryPage } from "./pages/Inventory";
 import { MealsPage } from "./pages/Meals";
 import { NewsPage } from "./pages/News";
 import { SettingsPage } from "./pages/Settings";
+import { SpooktoberPage } from "./pages/Spooktober";
 import { WeatherPage } from "./pages/Weather";
 import { RightRail } from "./ui/RightRail";
 
@@ -16,6 +17,7 @@ const TABS = [
   { id: "meals", label: "Meals" },
   { id: "weather", label: "Weather" },
   { id: "news", label: "News" },
+  { id: "spooktober", label: "Spooktober" },
   { id: "inventory", label: "Inventory" },
   { id: "history", label: "History" },
   { id: "chat", label: "Chat" },
@@ -43,6 +45,7 @@ export function App() {
             {tab === "meals" && <MealsPage />}
             {tab === "weather" && <WeatherPage />}
             {tab === "news" && <NewsPage />}
+            {tab === "spooktober" && <SpooktoberPage />}
             {tab === "inventory" && <InventoryPage />}
             {tab === "history" && <AuditPage />}
             {tab === "chat" && <ChatPage />}
@@ -117,6 +120,14 @@ function NavIcon({ id }: { id: Tab }) {
       <svg {...common}>
         <path d="M5 5h11a2 2 0 0 1 2 2v12H7a2 2 0 0 1-2-2z" />
         <path d="M8 9h7M8 13h7" />
+      </svg>
+    );
+  }
+  if (id === "spooktober") {
+    return (
+      <svg {...common}>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <path d="M7 5v14M17 5v14M3 9h4M3 15h4M17 9h4M17 15h4" />
       </svg>
     );
   }
