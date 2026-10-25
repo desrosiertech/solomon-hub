@@ -1,15 +1,17 @@
 """Spooktober diary through the app API. No model and no streaming service.
 
 Seams:
-- GET /api/spooktober is the diary the page renders: counts, favorites, recent
-  entries, year comparison, and an empty diary. It does not cover chat wording.
+- GET /api/spooktober is the diary the page renders: a year chart, every movie,
+  and the chosen best-of list. An empty diary stays empty.
 - SpooktoberStore.record_watch is how a watch gets into that diary. Tests seed
-  rows there. The page has no add-movie form.
+  rows there. The page has no add-movie form, and chat does not parse one.
 """
 
 import pytest
 
 NOW = "2026-10-23T21:42:00+00:00"  # 5:42 PM in America/New_York
+DESROSIER = "member-desrosier"
+PETER = "member-peter"
 
 
 def test_empty_diary_has_nothing_to_show(client):
@@ -18,226 +20,181 @@ def test_empty_diary_has_nothing_to_show(client):
     assert diary == {
         "empty": True,
         "year": 2026,
-        "annual_count": 0,
-        "favorites": [],
-        "recent": [],
-        "comparison": [
-            {"year": 2026, "count": 0},
-            {"year": 2025, "count": 0},
-        ],
+        "chart": [],
+        "movies": [],
+        "best_of": [],
     }
     assert client.get("/api/provider").json()["name"] == "Disabled"
 
 
-def test_a_recorded_watch_shows_its_date_rating_and_note(client):
-    client.put("/api/clock", json={"now": NOW})
-    client.app.state.journal.record_watch(
-        title="The Witch",
-        member_id="member-adult",
-        watched_on="2026-10-03",
-        rating=3,
-        notes="Still the one we quote.",
-    )
-    diary = client.get("/api/spooktober").json()
-    assert diary["empty"] is False
-    assert diary["year"] == 2026
-    assert diary["annual_count"] == 1
-    assert diary["favorites"] == []
-    assert diary["recent"] == [
-        {
-            "title": "The Witch",
-            "watched_on": "2026-10-03",
-            "watched_label": "October 3",
-            "people": [
-                {
-                    "member_id": "member-adult",
-                    "display_name": "Adult",
-                    "initial": "A",
-                    "rating": 3,
-                    "notes": "Still the one we quote.",
-                    "watched_on": "2026-10-03",
-                }
-            ],
-        }
-    ]
-    assert diary["comparison"] == [
-        {"year": 2026, "count": 1},
-        {"year": 2025, "count": 0},
-    ]
-
-
-def test_only_a_five_star_rating_is_a_favorite(client):
+def test_peter_and_desrosier_each_score_the_movie_and_the_scare(client):
     client.put("/api/clock", json={"now": NOW})
     journal = client.app.state.journal
     journal.record_watch(
         title="The Witch",
-        member_id="member-adult",
+        member_id=DESROSIER,
         watched_on="2026-10-03",
-        rating=5,
-        notes="Still the one we quote.",
-    )
-    journal.record_watch(
-        title="Halloween",
-        member_id="member-adult",
-        watched_on="2026-10-17",
-        rating=4,
-        notes="The walk home was the good part.",
-    )
-    diary = client.get("/api/spooktober").json()
-    assert diary["annual_count"] == 2
-    assert diary["favorites"] == [{"title": "The Witch", "people": ["Adult"]}]
-
-
-def test_two_people_keep_their_own_rating_date_and_note(client):
-    client.put("/api/clock", json={"now": NOW})
-    journal = client.app.state.journal
-    journal.record_watch(
-        title="The Witch",
-        member_id="member-adult",
-        watched_on="2026-10-03",
-        rating=5,
+        rating=9,
+        spook=10,
         notes="Still the one we quote.",
     )
     journal.record_watch(
         title="The Witch",
-        member_id="member-blair",
-        display_name="Blair",
+        member_id=PETER,
         watched_on="2026-10-04",
-        rating=4,
-        notes="Too quiet, then it isn't.",
+        rating=8,
+        spook=9,
+        notes="The goat still gets me.",
     )
-    diary = client.get("/api/spooktober").json()
-    assert diary["annual_count"] == 1
-    assert diary["recent"] == [
+    movie = client.get("/api/spooktober").json()["movies"][0]
+    assert movie["watched_on"] == "2026-10-04"
+    assert movie["watched_label"] == "October 4"
+    assert movie["best_of"] is False
+    assert movie["people"] == [
         {
-            "title": "The Witch",
+            "member_id": DESROSIER,
+            "display_name": "Desrosier",
+            "initial": "D",
+            "rating": 9,
+            "spook": 10,
+            "notes": "Still the one we quote.",
+            "watched_on": "2026-10-03",
+        },
+        {
+            "member_id": PETER,
+            "display_name": "Peter",
+            "initial": "P",
+            "rating": 8,
+            "spook": 9,
+            "notes": "The goat still gets me.",
             "watched_on": "2026-10-04",
-            "watched_label": "October 4",
-            "people": [
-                {
-                    "member_id": "member-adult",
-                    "display_name": "Adult",
-                    "initial": "A",
-                    "rating": 5,
-                    "notes": "Still the one we quote.",
-                    "watched_on": "2026-10-03",
-                },
-                {
-                    "member_id": "member-blair",
-                    "display_name": "Blair",
-                    "initial": "B",
-                    "rating": 4,
-                    "notes": "Too quiet, then it isn't.",
-                    "watched_on": "2026-10-04",
-                },
-            ],
-        }
+        },
     ]
-    assert diary["favorites"] == [{"title": "The Witch", "people": ["Adult"]}]
 
 
-def test_recent_entries_list_the_newest_watch_first(client):
+def test_best_of_is_chosen_not_the_highest_scores(client):
     client.put("/api/clock", json={"now": NOW})
     journal = client.app.state.journal
-    journal.record_watch(
-        title="The Witch",
-        member_id="member-adult",
-        watched_on="2026-10-03",
-        rating=5,
-    )
     journal.record_watch(
         title="Coraline",
-        member_id="member-adult",
+        member_id=DESROSIER,
         watched_on="2026-10-24",
-        rating=5,
+        rating=10,
+        spook=10,
+        best_of=False,
     )
     journal.record_watch(
-        title="Halloween",
-        member_id="member-adult",
-        watched_on="2026-10-17",
-        rating=4,
+        title="The Witch",
+        member_id=DESROSIER,
+        watched_on="2026-10-03",
+        rating=6,
+        spook=6,
+        best_of=True,
+    )
+    journal.record_watch(
+        title="The Witch",
+        member_id=PETER,
+        watched_on="2026-10-03",
+        rating=6,
+        spook=7,
     )
     diary = client.get("/api/spooktober").json()
-    assert [movie["title"] for movie in diary["recent"]] == ["Coraline", "Halloween", "The Witch"]
-    assert [movie["watched_label"] for movie in diary["recent"]] == [
-        "October 24",
-        "October 17",
-        "October 3",
-    ]
-    assert diary["favorites"] == [
-        {"title": "Coraline", "people": ["Adult"]},
-        {"title": "The Witch", "people": ["Adult"]},
-    ]
+    assert [movie["title"] for movie in diary["movies"]] == ["Coraline", "The Witch"]
+    assert [movie["title"] for movie in diary["best_of"]] == ["The Witch"]
+    assert diary["best_of"][0]["people"][0]["rating"] == 6
+    assert diary["best_of"][0]["people"][0]["spook"] == 6
 
 
-def test_last_spooktober_is_a_count_beside_this_year(client):
+def test_year_chart_keeps_an_empty_year_and_lists_every_movie(client):
     client.put("/api/clock", json={"now": NOW})
-    journal = client.app.state.journal
-    journal.record_watch(
-        title="Hocus Pocus",
-        member_id="member-adult",
-        watched_on="2025-10-18",
-        rating=5,
-        notes="We know every song.",
-    )
-    journal.record_watch(
-        title="Halloween",
-        member_id="member-adult",
-        watched_on="2026-10-17",
-        rating=4,
-        notes="The walk home was the good part.",
-    )
+    client.app.state.journal.seed_sample()
     diary = client.get("/api/spooktober").json()
     assert diary["empty"] is False
-    assert diary["annual_count"] == 1
-    assert [movie["title"] for movie in diary["recent"]] == ["Halloween"]
-    assert diary["favorites"] == []
-    assert diary["comparison"] == [
-        {"year": 2026, "count": 1},
-        {"year": 2025, "count": 1},
+    assert diary["chart"] == [
+        {"year": 2024, "count": 1},
+        {"year": 2025, "count": 0},
+        {"year": 2026, "count": 2},
+    ]
+    assert [movie["title"] for movie in diary["movies"]] == ["Coraline", "Halloween", "The Witch"]
+    assert [movie["title"] for movie in diary["best_of"]] == ["Halloween", "The Witch"]
+    coraline = diary["movies"][0]
+    assert coraline["best_of"] is False
+    assert [(person["display_name"], person["rating"], person["spook"]) for person in coraline["people"]] == [
+        ("Desrosier", 10, 6),
+        ("Peter", 6, 4),
+    ]
+    witch = next(movie for movie in diary["best_of"] if movie["title"] == "The Witch")
+    assert [(person["display_name"], person["rating"], person["spook"]) for person in witch["people"]] == [
+        ("Desrosier", 9, 10),
+        ("Peter", 8, 9),
     ]
 
 
-def test_recording_a_watch_again_replaces_that_persons_line(client):
+def test_recording_again_replaces_that_persons_scores(client):
     client.put("/api/clock", json={"now": NOW})
     journal = client.app.state.journal
     journal.record_watch(
         title="The Witch",
-        member_id="member-adult",
+        member_id=DESROSIER,
         watched_on="2026-10-03",
-        rating=3,
+        rating=4,
+        spook=4,
         notes="First pass.",
     )
     journal.record_watch(
         title="The Witch",
-        member_id="member-adult",
+        member_id=DESROSIER,
         watched_on="2026-10-05",
-        rating=5,
+        rating=9,
+        spook=8,
         notes="Still the one we quote.",
+        best_of=True,
     )
     diary = client.get("/api/spooktober").json()
-    assert diary["annual_count"] == 1
-    assert diary["recent"][0]["people"] == [
+    assert diary["movies"][0]["people"] == [
         {
-            "member_id": "member-adult",
-            "display_name": "Adult",
-            "initial": "A",
-            "rating": 5,
+            "member_id": DESROSIER,
+            "display_name": "Desrosier",
+            "initial": "D",
+            "rating": 9,
+            "spook": 8,
             "notes": "Still the one we quote.",
             "watched_on": "2026-10-05",
         }
     ]
-    assert diary["favorites"] == [{"title": "The Witch", "people": ["Adult"]}]
+    assert [movie["title"] for movie in diary["best_of"]] == ["The Witch"]
 
 
-def test_a_rating_outside_one_to_five_is_refused(client):
+def test_a_score_outside_one_to_ten_is_refused(client):
     client.put("/api/clock", json={"now": NOW})
     journal = client.app.state.journal
     with pytest.raises(ValueError):
         journal.record_watch(
             title="Nope",
+            member_id=DESROSIER,
+            watched_on="2026-10-11",
+            rating=11,
+            spook=5,
+        )
+    with pytest.raises(ValueError):
+        journal.record_watch(
+            title="Nope",
+            member_id=DESROSIER,
+            watched_on="2026-10-11",
+            rating=5,
+            spook=0,
+        )
+    assert client.get("/api/spooktober").json()["empty"] is True
+
+
+def test_only_peter_and_desrosier_are_on_the_diary(client):
+    client.put("/api/clock", json={"now": NOW})
+    with pytest.raises(ValueError):
+        client.app.state.journal.record_watch(
+            title="Nope",
             member_id="member-adult",
             watched_on="2026-10-11",
-            rating=6,
+            rating=8,
+            spook=8,
         )
     assert client.get("/api/spooktober").json()["empty"] is True

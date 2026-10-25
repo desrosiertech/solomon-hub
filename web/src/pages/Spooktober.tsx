@@ -6,6 +6,7 @@ type PersonRating = {
   display_name: string;
   initial: string;
   rating: number | null;
+  spook: number | null;
   notes: string | null;
   watched_on: string;
 };
@@ -14,12 +15,8 @@ type MovieEntry = {
   title: string;
   watched_on: string;
   watched_label: string;
+  best_of: boolean;
   people: PersonRating[];
-};
-
-type Favorite = {
-  title: string;
-  people: string[];
 };
 
 type YearCount = {
@@ -30,13 +27,13 @@ type YearCount = {
 type Diary = {
   empty: boolean;
   year: number;
-  annual_count: number;
-  favorites: Favorite[];
-  recent: MovieEntry[];
-  comparison: YearCount[];
+  chart: YearCount[];
+  movies: MovieEntry[];
+  best_of: MovieEntry[];
 };
 
 const card = "rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]";
+const PEOPLE = ["member-desrosier", "member-peter"];
 
 async function loadDiary(): Promise<Diary> {
   const response = await fetch("/api/spooktober");
@@ -55,14 +52,9 @@ function dayLabel(iso: string): string {
   }).format(new Date(Date.UTC(year, (month ?? 1) - 1, day ?? 1)));
 }
 
-function colorIndex(rows: MovieEntry[]): Map<string, number> {
-  const ids = new Set<string>();
-  for (const movie of rows) {
-    for (const person of movie.people) {
-      ids.add(person.member_id);
-    }
-  }
-  return new Map([...ids].sort().map((id, index) => [id, index]));
+function colorFor(memberId: string): string {
+  const index = PEOPLE.indexOf(memberId);
+  return personColor(memberId, index < 0 ? 0 : index);
 }
 
 export function SpooktoberPage() {
@@ -85,111 +77,69 @@ export function SpooktoberPage() {
             </p>
           </div>
         )}
-        {data && !data.empty && (
-          <p className="mt-2">
-            <span className="text-5xl font-semibold tabular-nums tracking-tight">{data.annual_count}</span>
-            <span className="ml-3 text-muted">watched</span>
-          </p>
-        )}
+        {data && !data.empty && <p className="mt-2 text-muted">What we watched, and the ones we kept.</p>}
       </section>
 
       {data && !data.empty && (
         <>
-          <div className="grid gap-4 md:grid-cols-2">
-            <YearComparison years={data.comparison} />
-            <Favorites rows={data.favorites} />
-          </div>
-          <Recent rows={data.recent} />
+          <YearChart years={data.chart} />
+          <MovieSection title="Every movie" movies={data.movies} empty="No movies in the diary yet." />
+          <MovieSection title="Best of" movies={data.best_of} empty="No best-of picks yet." />
         </>
       )}
     </div>
   );
 }
 
-function YearComparison({ years }: { years: YearCount[] }) {
+function YearChart({ years }: { years: YearCount[] }) {
   const peak = Math.max(...years.map((row) => row.count), 1);
   return (
     <section className={card}>
-      <h2 className="text-2xl">This year and last</h2>
-      <ul className="mt-4 grid gap-4">
-        {years.map((row) => (
-          <li key={row.year}>
-            <div className="mb-1 flex items-baseline justify-between gap-3">
-              <span>{row.year}</span>
-              <span className="tabular-nums text-muted">{row.count}</span>
-            </div>
-            <div className="h-2 overflow-hidden rounded-full bg-wash">
-              <div
-                className="h-full rounded-full bg-ink"
-                style={{ width: row.count === 0 ? "0%" : `${Math.max(8, (row.count / peak) * 100)}%` }}
-              />
-            </div>
-          </li>
-        ))}
+      <h2 className="text-2xl">Movies by year</h2>
+      <ul className="mt-4 flex items-end gap-3" aria-label="Movies watched each year">
+        {years.map((row) => {
+          const height = row.count === 0 ? 2 : Math.max(18, Math.round((row.count / peak) * 144));
+          return (
+            <li key={row.year} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+              <span className="text-sm tabular-nums">{row.count}</span>
+              <div className="flex h-36 w-full items-end justify-center">
+                <div className="flex h-full w-full max-w-14 items-end rounded-t-lg bg-wash">
+                  <div
+                    className={`w-full rounded-t-lg ${row.count === 0 ? "bg-line" : "bg-ink"}`}
+                    style={{ height: `${height}px` }}
+                    aria-label={`${row.year}: ${row.count} movies`}
+                  />
+                </div>
+              </div>
+              <span className="text-sm text-muted tabular-nums">{row.year}</span>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );
 }
 
-function Favorites({ rows }: { rows: Favorite[] }) {
+function MovieSection({ title, movies, empty }: { title: string; movies: MovieEntry[]; empty: string }) {
   return (
     <section className={card}>
-      <h2 className="text-2xl">Favorites</h2>
-      {rows.length === 0 ? (
-        <p className="mt-3 text-muted">No favorites yet.</p>
-      ) : (
-        <ul className="mt-3 divide-y divide-line">
-          {rows.map((row) => (
-            <li key={row.title} className="flex items-baseline justify-between gap-3 py-3 first:pt-0 last:pb-0">
-              <span className="text-lg">{row.title}</span>
-              <span className="text-sm text-muted">{row.people.join(" · ")}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-
-function Recent({ rows }: { rows: MovieEntry[] }) {
-  const colors = colorIndex(rows);
-  return (
-    <section className={card}>
-      <h2 className="text-2xl">Recent</h2>
-      {rows.length === 0 ? (
-        <p className="mt-3 text-muted">No movies this Spooktober yet.</p>
+      <h2 className="text-2xl">{title}</h2>
+      {movies.length === 0 ? (
+        <p className="mt-3 text-muted">{empty}</p>
       ) : (
         <ul className="mt-2 divide-y divide-line">
-          {rows.map((movie) => (
-            <li key={`${movie.title}-${movie.watched_on}`} className="py-4 first:pt-3 last:pb-0">
-              <div className="flex items-baseline justify-between gap-3">
+          {movies.map((movie) => (
+            <li key={`${title}-${movie.title}`} className="py-4 first:pt-3 last:pb-0">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                 <p className="text-lg">{movie.title}</p>
-                <p className="shrink-0 text-sm text-muted">{movie.watched_label}</p>
+                <p className="text-sm text-muted">
+                  {movie.watched_label}, {movie.watched_on.slice(0, 4)}
+                </p>
               </div>
               <ul className="mt-3 grid gap-3">
-                {movie.people.map((person) => {
-                  const color = personColor(person.member_id, colors.get(person.member_id) ?? 0);
-                  return (
-                    <li key={`${person.member_id}-${person.watched_on}`} className="flex items-start gap-3">
-                      <span
-                        className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-semibold text-white"
-                        style={{ backgroundColor: color }}
-                      >
-                        {person.initial}
-                      </span>
-                      <div>
-                        <p>
-                          {person.display_name}
-                          <Rating rating={person.rating} />
-                        </p>
-                        {person.notes && <p className="text-sm text-muted">{person.notes}</p>}
-                        {person.watched_on !== movie.watched_on && (
-                          <p className="text-sm text-muted">{dayLabel(person.watched_on)}</p>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
+                {movie.people.map((person) => (
+                  <PersonRow key={person.member_id} person={person} movieDate={movie.watched_on} />
+                ))}
               </ul>
             </li>
           ))}
@@ -199,18 +149,29 @@ function Recent({ rows }: { rows: MovieEntry[] }) {
   );
 }
 
-function Rating({ rating }: { rating: number | null }) {
-  if (rating == null) {
-    return <span className="ml-2 text-sm text-muted">No rating</span>;
-  }
+function PersonRow({ person, movieDate }: { person: PersonRating; movieDate: string }) {
+  const color = colorFor(person.member_id);
+  const rating = person.rating == null ? "no rating" : `${person.rating} out of 10`;
+  const spook = person.spook == null ? "no spook rating" : `spook ${person.spook} out of 10`;
   return (
-    <span className="ml-2 inline-flex items-center gap-1 align-middle" aria-label={`${rating} out of 5`}>
-      <span className="tabular-nums">{rating}</span>
-      <span className="inline-flex gap-0.5" aria-hidden="true">
-        {Array.from({ length: 5 }, (_, index) => (
-          <span key={index} className={`h-1.5 w-1.5 rounded-full ${index < rating ? "bg-ink" : "bg-wash"}`} />
-        ))}
+    <li className="flex items-start gap-3">
+      <span
+        className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm font-semibold text-white"
+        style={{ backgroundColor: color }}
+      >
+        {person.initial}
       </span>
-    </span>
+      <div className="min-w-0">
+        <p>{person.display_name}</p>
+        <p className="mt-0.5 flex flex-wrap gap-x-3 text-sm tabular-nums" aria-label={`${person.display_name}, ${rating}, ${spook}`}>
+          <span>
+            {person.rating ?? "—"} <span className="text-muted">/ 10</span>
+          </span>
+          <span className="text-muted">Spook {person.spook ?? "—"} / 10</span>
+        </p>
+        {person.notes && <p className="text-sm text-muted">{person.notes}</p>}
+        {person.watched_on !== movieDate && <p className="text-sm text-muted">{dayLabel(person.watched_on)}</p>}
+      </div>
+    </li>
   );
 }
