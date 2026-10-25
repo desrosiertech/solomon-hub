@@ -5,10 +5,12 @@ from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from solomon.board import BoardStore, CalendarAdapter, WeatherAdapter
+from solomon.chat import ChatStore, OffReader
 from solomon.clock import AppClock
 from solomon.news import NewsAdapter, NewsStore
 from solomon.intake import (
@@ -81,6 +83,7 @@ def create_app(
     weather: WeatherAdapter | None = None,
     calendar: CalendarAdapter | None = None,
     news: NewsAdapter | None = None,
+    chat_reader=None,
 ) -> FastAPI:
     path = Path(db_path) if db_path is not None else DEFAULT_DB
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -92,6 +95,7 @@ def create_app(
     store.blob_dir = Path(blob_dir) if blob_dir is not None else path.parent / "blobs"
     board = BoardStore(engine, clock, weather, calendar)
     news_store = NewsStore(engine, clock, news)
+    chat = ChatStore(engine, clock, store.blob_dir, chat_reader or OffReader())
 
     app = FastAPI(title="Solomon", version="0.1.0")
     app.add_middleware(
@@ -103,12 +107,40 @@ def create_app(
     app.state.store = store
     app.state.board = board
     app.state.news = news_store
+    app.state.chat = chat
     app.state.clock = clock
     app.state.provider = store.provider
 
     @app.get("/api/provider")
     def provider_status() -> dict:
         return store.provider.status()
+
+    @app.get("/api/connections")
+    def connections() -> dict:
+        return {
+            "calendar": {"connected": False, "state": "not_connected"},
+            "api": {"connected": False, "state": "not_connected"},
+        }
+
+    @app.post("/api/chat", status_code=201)
+    async def post_chat(request: Request) -> dict:
+        text, image, image_type = await _chat_parts(request)
+        try:
+            return chat.post(text=text, image=image, image_type=image_type)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    @app.get("/api/chat")
+    def list_chat() -> dict:
+        return chat.list_messages()
+
+    @app.get("/api/chat/{message_id}/image")
+    def chat_image(message_id: str):
+        found = chat.image_file(message_id)
+        if found is None:
+            raise HTTPException(status_code=404, detail="photo not found")
+        path, media_type = found
+        return FileResponse(path, media_type=media_type)
 
     @app.put("/api/clock")
     def set_clock(body: ClockIn) -> dict:
@@ -274,6 +306,27 @@ def create_app(
         app.mount("/assets", StaticFiles(directory=web_dist / "assets"), name="assets")
 
     return app
+
+
+async def _chat_parts(request: Request) -> tuple[str, bytes | None, str | None]:
+    content_type = request.headers.get("content-type", "")
+    if content_type.startswith("application/json"):
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise HTTPException(status_code=400, detail="Say something or attach a photo.")
+        text = body.get("text", "")
+        if not isinstance(text, str):
+            raise HTTPException(status_code=400, detail="Say something or attach a photo.")
+        return text, None, None
+    form = await request.form()
+    raw_text = form.get("text") or ""
+    text = raw_text if isinstance(raw_text, str) else str(raw_text)
+    upload = form.get("image")
+    if upload is None or not hasattr(upload, "read"):
+        return text, None, None
+    payload = await upload.read()
+    media = getattr(upload, "content_type", None) or ""
+    return text, payload, media
 
 
 def session_for(engine):

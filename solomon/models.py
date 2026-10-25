@@ -198,6 +198,19 @@ class SourceStatus(Base):
     last_error_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
+class ChatMessage(Base):
+    __tablename__ = "chat_message"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    text: Mapped[str] = mapped_column(Text, default="")
+    image_name: Mapped[str | None] = mapped_column(String)
+    image_type: Mapped[str | None] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    reader_status: Mapped[str] = mapped_column(String)
+    proposal_kind: Mapped[str | None] = mapped_column(String)
+    proposal_summary: Mapped[str] = mapped_column(Text)
+
+
 class AuditEvent(Base):
     __tablename__ = "audit_event"
 

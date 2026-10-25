@@ -150,6 +150,31 @@ export type PlannedNight = {
   title: string;
 };
 
+export type ChatProposal = {
+  status: "reader_off" | "proposed";
+  kind: string | null;
+  summary: string;
+};
+
+export type ChatMessage = {
+  id: string;
+  text: string;
+  has_image: boolean;
+  image_url: string | null;
+  at: string;
+  proposal: ChatProposal;
+};
+
+export type ConnectionSide = {
+  connected: boolean;
+  state: "not_connected";
+};
+
+export type Connections = {
+  calendar: ConnectionSide;
+  api: ConnectionSide;
+};
+
 export class ApiError extends Error {
   detail: string;
 
@@ -270,4 +295,18 @@ export const api = {
       body: JSON.stringify({ on, recipe_id: recipeId }),
     }),
   plannedMeals: () => request<{ nights: PlannedNight[] }>("/api/planned-meals"),
+  chat: () => request<{ messages: ChatMessage[] }>("/api/chat"),
+  sendChat: (text: string, image?: File) => {
+    if (image) {
+      const body = new FormData();
+      body.append("text", text);
+      body.append("image", image);
+      return sendForm<ChatMessage>("/api/chat", body);
+    }
+    return request<ChatMessage>("/api/chat", {
+      method: "POST",
+      body: JSON.stringify({ text }),
+    });
+  },
+  connections: () => request<Connections>("/api/connections"),
 };

@@ -8,8 +8,8 @@ Solomon is a household's private dashboard and assistant: it owns the household'
 The group of people, pets, vehicles and places Solomon serves. One deployment serves exactly one Household.
 
 **Member**:
-A person in the Household with their own login, accent color and permissions.
-_Avoid_: User (when you mean a person), account
+A person in the Household with an accent color and permissions. The app does not ask a Member to sign in.
+_Avoid_: User (when you mean a person), account, login
 
 **Role**:
 A named bundle of permissions assigned to a Member or Display (Adult, Teen, Child, Guest, Display).
@@ -76,6 +76,10 @@ _Avoid_: Draft, suggestion (reserved for food ideas)
 **Review queue**:
 The single place where Proposed changes are approved, corrected, rejected or archived; shown as a quiet "Needs review" count.
 _Avoid_: Inbox (reserved for the intake mailbox), notifications
+
+**Chat**:
+The Household's one place to hand Solomon a message, with or without a photo. The message is a Proposed change until it is applied. With the reader off, the message stays visible and is not sent to a model.
+_Avoid_: Form, each screen's add box
 
 **Intake item**:
 One captured artifact (forwarded email, receipt photo, scanned document, barcode scan) with its provenance and original copy, from which Proposed changes are extracted.
