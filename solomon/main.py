@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 from solomon.board import BoardStore, CalendarAdapter, WeatherAdapter
 from solomon.clock import AppClock
+from solomon.news import NewsAdapter, NewsStore
 from solomon.intake import (
     accept_recipe,
     apply_receipt,
@@ -79,6 +80,7 @@ def create_app(
     fetch_page=None,
     weather: WeatherAdapter | None = None,
     calendar: CalendarAdapter | None = None,
+    news: NewsAdapter | None = None,
 ) -> FastAPI:
     path = Path(db_path) if db_path is not None else DEFAULT_DB
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -89,6 +91,7 @@ def create_app(
     store = FoodStore(engine, clock, provider or DisabledProvider())
     store.blob_dir = Path(blob_dir) if blob_dir is not None else path.parent / "blobs"
     board = BoardStore(engine, clock, weather, calendar)
+    news_store = NewsStore(engine, clock, news)
 
     app = FastAPI(title="Solomon", version="0.1.0")
     app.add_middleware(
@@ -99,6 +102,7 @@ def create_app(
     )
     app.state.store = store
     app.state.board = board
+    app.state.news = news_store
     app.state.clock = clock
     app.state.provider = store.provider
 
@@ -162,6 +166,14 @@ def create_app(
     @app.post("/api/weather/refresh")
     def refresh_weather() -> dict:
         return board.refresh_weather()
+
+    @app.get("/api/news")
+    def news_digest() -> dict:
+        return news_store.digest()
+
+    @app.post("/api/news/refresh")
+    def refresh_news() -> dict:
+        return news_store.refresh()
 
     @app.get("/api/meals")
     def meals() -> dict:

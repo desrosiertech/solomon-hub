@@ -73,6 +73,19 @@ export type CalendarDay = {
   calendar: SourceCard;
 };
 
+export type Headline = {
+  id: string;
+  title: string;
+  url: string;
+  published_at: string;
+  published_label: string;
+  source_name: string | null;
+};
+
+export type NewsDigest = SourceCard & {
+  headlines: Headline[];
+};
+
 export type HomePayload = {
   ideas: MealIdea[];
   use_soon: Suggestion[];
@@ -214,6 +227,8 @@ export const api = {
   refreshWeather: () => request<WeatherSnapshot>("/api/weather/refresh", { method: "POST" }),
   calendarDay: (on?: string | null) =>
     request<CalendarDay>(`/api/calendar/day${on ? `?on=${encodeURIComponent(on)}` : ""}`),
+  news: () => request<NewsDigest>("/api/news"),
+  refreshNews: () => request<NewsDigest>("/api/news/refresh", { method: "POST" }),
   addEvent: (body: {
     title: string;
     start_local: string;
