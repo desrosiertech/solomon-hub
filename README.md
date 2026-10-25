@@ -1,6 +1,6 @@
 # Solomon
 
-Private, LAN-first household dashboard. This repo has the grocery vertical slice (AI off), a Calendar day page, cached weather on Home, plus the planning docs.
+Private, LAN-first household dashboard. This repo has the grocery vertical slice (AI off), a Calendar day page, a Weather page with a cached home forecast, plus the planning docs.
 
 - Plan: [`docs/plan/README.md`](docs/plan/README.md)
 - Decisions: [`docs/adr/`](docs/adr/)
@@ -12,10 +12,10 @@ A Member can add groceries, see conservative estimated use-by windows, get quiet
 
 ```text
 solomon/food.py     # domain functions (window, aging, ideas, suppression)
-solomon/board.py    # calendar day, weather cache, stale-not-blank
+solomon/board.py    # calendar day, weather page, stale-not-blank
 solomon/service.py  # SQLite + audit + cached meal ideas
 solomon/main.py     # FastAPI the UI calls
-web/                # React Home / Calendar / Meals / Inventory / History
+web/                # React Home / Calendar / Meals / Weather / Inventory / History
 ```
 
 ### Run

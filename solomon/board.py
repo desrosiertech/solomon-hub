@@ -329,6 +329,14 @@ class BoardStore:
         except ValueError as exc:
             raise ValueError("on must be a YYYY-MM-DD date") from exc
 
+    def forecast(self) -> dict:
+        now = self.clock.now()
+        return {
+            "place": "Home",
+            "date_label": date_label(now),
+            **self._weather_payload(now=now),
+        }
+
     def home(self) -> dict:
         now = self.clock.now()
         with self.session() as session:
