@@ -42,6 +42,13 @@ from solomon.seed import HOUSEHOLD_ID, MEMBER_ID, MEMBER_NAME, SEED_RECIPES
 WINDOW_LABEL = "Estimated use-by window"
 
 
+def reader_line(provider: ModelProvider) -> dict:
+    """Whether Meals can read a receipt or a recipe the Member just submitted."""
+    probe = provider.status()
+    on = bool(probe.get("signed_in") and probe.get("reachable"))
+    return {"on": on, "label": "Reader on" if on else "Reader off"}
+
+
 def _new_id(prefix: str) -> str:
     return f"{prefix}_{uuid4().hex}"
 
@@ -246,7 +253,9 @@ class FoodStore:
         return {"ideas": bundle["ideas"], "use_soon": bundle["use_soon"]}
 
     def meals(self) -> dict:
-        return self._suggestion_bundle()
+        bundle = self._suggestion_bundle()
+        bundle["reader"] = reader_line(self.provider)
+        return bundle
 
     def stop_asking(self, key: str) -> None:
         self.age()

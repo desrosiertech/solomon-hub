@@ -85,10 +85,16 @@ export type IdeasCard = {
   now: string | null;
 };
 
+export type ReaderStatus = {
+  on: boolean;
+  label: string;
+};
+
 export type MealsPayload = {
   ideas: MealIdea[];
   use_soon: Suggestion[];
   ideas_card: IdeasCard;
+  reader: ReaderStatus;
 };
 
 export type ProviderStatus = {

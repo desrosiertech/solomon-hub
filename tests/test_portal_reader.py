@@ -192,3 +192,102 @@ def test_receipt_and_recipe_use_only_the_submitted_text(tmp_path: Path):
             assert item["authorization"] == f"Bearer {key}"
     finally:
         portal.stop()
+
+
+def test_meals_stays_off_and_sends_nothing_without_a_usable_login(tmp_path: Path):
+    auth = tmp_path / "auth.json"
+    auth.write_text(
+        json.dumps(
+            {
+                "providers": {
+                    "nous": {
+                        "refresh_token": REFRESH,
+                        "access_token": "portal-access-token",
+                        "agent_key": _jwt(1_000),
+                    }
+                }
+            }
+        ),
+        encoding="utf-8",
+    )
+    portal = _Portal()
+    portal.start()
+    try:
+        reader = PortalProvider(auth_file=auth, base_url=portal.url, now=lambda: 1_700_000_000)
+        from solomon.main import create_app
+
+        app = create_app(db_path=tmp_path / "solomon.db", blob_dir=tmp_path / "blobs", provider=reader)
+        with TestClient(app) as client:
+            client.put("/api/clock", json={"now": "2026-10-20T12:00:00+00:00"})
+            added = client.post(
+                "/api/inventory",
+                json={
+                    "label": PANTRY,
+                    "category": "leafy_greens",
+                    "storage": "fridge",
+                    "quantity_kind": "one_package",
+                },
+            )
+            client.put("/api/clock", json={"now": "2026-10-23T12:00:00+00:00"})
+            meals = client.get("/api/meals").json()
+            stopped = client.post(
+                "/api/suggestions/stop-asking",
+                json={"key": meals["use_soon"][0]["key"]},
+            )
+            receipt = client.post(
+                "/api/receipts",
+                files={"image": ("receipt.jpg", b"receipt-image", "image/jpeg")},
+            )
+        assert added.status_code == 201
+        assert meals["reader"] == {"on": False, "label": "Reader off"}
+        assert meals["use_soon"][0]["title"] == PANTRY
+        assert stopped.status_code == 204
+        assert receipt.status_code == 409
+        assert receipt.json()["detail"] == "The reader is off."
+        assert portal.requests == []
+        assert REFRESH.encode() not in json.dumps(meals).encode()
+    finally:
+        portal.stop()
+
+
+def test_meals_says_reader_on_and_sends_only_a_submitted_receipt(tmp_path: Path):
+    key = _jwt(4_000_000_000)
+    auth = tmp_path / "auth.json"
+    auth.write_text(
+        json.dumps({"providers": {"nous": {"refresh_token": REFRESH, "agent_key": key}}}),
+        encoding="utf-8",
+    )
+    portal = _Portal()
+    portal.start()
+    try:
+        reader = PortalProvider(auth_file=auth, base_url=portal.url, now=lambda: 1_700_000_000)
+        from solomon.main import create_app
+
+        app = create_app(db_path=tmp_path / "solomon.db", blob_dir=tmp_path / "blobs", provider=reader)
+        with TestClient(app) as client:
+            client.post(
+                "/api/inventory",
+                json={"label": PANTRY, "category": "unknown", "storage": "pantry"},
+            )
+            meals = client.get("/api/meals").json()
+            receipt = client.post(
+                "/api/receipts",
+                files={"image": ("receipt.jpg", b"receipt-image", "image/jpeg")},
+            )
+        assert meals["reader"] == {"on": True, "label": "Reader on"}
+        assert receipt.status_code == 201
+        health = [item for item in portal.requests if item["method"] == "GET"]
+        posted = [item for item in portal.requests if item["method"] == "POST"]
+        assert health and all(item["body"] == b"" and item["path"] == "/v1/models" for item in health)
+        assert len(posted) == 1
+        body = posted[0]["body"]
+        assert b"receipt-image" in body or b"cmVjZWlwdC1pbWFnZQ" in body
+        assert PANTRY.encode() not in body
+        assert REFRESH.encode() not in body
+        assert posted[0]["authorization"] == f"Bearer {key}"
+        assert REFRESH not in (posted[0]["authorization"] or "")
+        for item in portal.requests:
+            assert REFRESH.encode() not in item["body"]
+            assert PANTRY.encode() not in item["body"]
+    finally:
+        portal.stop()
