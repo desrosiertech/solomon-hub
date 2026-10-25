@@ -17,6 +17,13 @@ class Household(Base):
     profile: Mapped[str] = mapped_column(String, default="conservative")
     grace_period_minutes: Mapped[int] = mapped_column(Integer, default=3 * 24 * 60)
     presume_after_minutes: Mapped[int] = mapped_column(Integer, default=4 * 24 * 60)
+    suppression_days: Mapped[int] = mapped_column(Integer, default=7)
+    presumed_discard: Mapped[str] = mapped_column(String, default="archive")
+    serving_size: Mapped[int] = mapped_column(Integer, default=2)
+    storage_locations_json: Mapped[str] = mapped_column(
+        Text, default='["Fridge", "Pantry", "Freezer", "Counter"]'
+    )
+    news_topics_json: Mapped[str] = mapped_column(Text, default="[]")
     ideas_generated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     ideas_json: Mapped[str | None] = mapped_column(Text)
 
@@ -27,6 +34,7 @@ class Member(Base):
     id: Mapped[str] = mapped_column(String, primary_key=True)
     display_name: Mapped[str] = mapped_column(String)
     role: Mapped[str] = mapped_column(String, default="adult")
+    sort_order: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class InventoryItem(Base):

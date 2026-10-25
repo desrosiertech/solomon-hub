@@ -13,6 +13,12 @@ from solomon.board import BoardStore, CalendarAdapter, WeatherAdapter
 from solomon.cars import CarStore, mount as mount_cars
 from solomon.chat import ChatStore, OffReader
 from solomon.clock import AppClock
+from solomon.household_settings import (
+    HouseholdPreferenceError,
+    parse_household,
+    read_household,
+    save_household,
+)
 from solomon.news import NewsAdapter, NewsStore
 from solomon.intake import (
     accept_recipe,
@@ -153,6 +159,30 @@ def create_app(
     @app.get("/api/clock")
     def get_clock() -> dict:
         return {"now": clock.now().isoformat()}
+
+    @app.get("/api/household")
+    def household() -> dict:
+        with store.session() as session:
+            return read_household(session)
+
+    @app.put("/api/household")
+    async def put_household(request: Request) -> dict:
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise HTTPException(
+                status_code=400, detail="Household preferences do not take a token or a password."
+            )
+        try:
+            preferences = parse_household(payload)
+        except HouseholdPreferenceError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        with store.session() as session:
+            try:
+                saved = save_household(session, preferences)
+            except HouseholdPreferenceError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+            session.commit()
+            return saved
 
     @app.put("/api/settings")
     def settings(body: SettingsIn) -> dict:

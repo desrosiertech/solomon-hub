@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { api } from "../api";
+import { Household } from "../settings/Household";
 import { ThemeSwitch } from "../ui/ThemeSwitch";
 
 export function SettingsPage() {
@@ -28,6 +29,7 @@ export function SettingsPage() {
         note="A model API can be connected here later. This screen does not take a key or a token."
         detail={providerLine}
       />
+      <Household />
     </div>
   );
 }
