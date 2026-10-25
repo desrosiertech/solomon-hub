@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from solomon.board import BoardStore, CalendarAdapter, WeatherAdapter
+from solomon.cars import CarStore, mount as mount_cars
 from solomon.chat import ChatStore, OffReader
 from solomon.clock import AppClock
 from solomon.news import NewsAdapter, NewsStore
@@ -96,6 +97,7 @@ def create_app(
     board = BoardStore(engine, clock, weather, calendar)
     news_store = NewsStore(engine, clock, news)
     chat = ChatStore(engine, clock, store.blob_dir, chat_reader or OffReader())
+    cars = CarStore(engine, clock)
 
     app = FastAPI(title="Solomon", version="0.1.0")
     app.add_middleware(
@@ -108,6 +110,7 @@ def create_app(
     app.state.board = board
     app.state.news = news_store
     app.state.chat = chat
+    app.state.cars = cars
     app.state.clock = clock
     app.state.provider = store.provider
 
@@ -293,6 +296,8 @@ def create_app(
     @app.get("/api/planned-meals")
     def planned() -> dict:
         return list_planned(store)
+
+    mount_cars(app, cars)
 
     web_dist = Path(__file__).resolve().parent.parent / "web" / "dist"
     if web_dist.is_dir():

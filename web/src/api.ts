@@ -184,6 +184,26 @@ export class ApiError extends Error {
   }
 }
 
+export type CarMaintenance = {
+  id: string;
+  kind: string;
+  kind_label: string;
+  performed_on: string | null;
+  evidence_note: string | null;
+  next_due?: string;
+};
+
+export type HouseholdCar = {
+  id: string;
+  nickname: string | null;
+  maintenance: CarMaintenance[];
+  missing: string[];
+};
+
+export type CarsPayload = {
+  cars: HouseholdCar[];
+};
+
 export type AuditEvent = {
   id: string;
   at: string;
@@ -295,6 +315,7 @@ export const api = {
       body: JSON.stringify({ on, recipe_id: recipeId }),
     }),
   plannedMeals: () => request<{ nights: PlannedNight[] }>("/api/planned-meals"),
+  cars: () => request<CarsPayload>("/api/cars"),
   chat: () => request<{ messages: ChatMessage[] }>("/api/chat"),
   sendChat: (text: string, image?: File) => {
     if (image) {
