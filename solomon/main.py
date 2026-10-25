@@ -32,6 +32,7 @@ from solomon.intake import (
 )
 from solomon.provider import DisabledProvider, ModelProvider, ReaderOff
 from solomon.service import FoodStore, make_engine, seed_if_empty
+from solomon.spooktober import SpooktoberStore, build_router as spooktober_router
 
 DEFAULT_DB = Path("data/solomon.db")
 
@@ -106,6 +107,7 @@ def create_app(
     chat = ChatStore(engine, clock, store.blob_dir, chat_reader or OffReader())
     cars = CarStore(engine, clock)
     dogs = DogStore(engine)
+    journal = SpooktoberStore(engine, clock)
 
     app = FastAPI(title="Solomon", version="0.1.0")
     app.add_middleware(
@@ -120,8 +122,10 @@ def create_app(
     app.state.chat = chat
     app.state.cars = cars
     app.state.dogs = dogs
+    app.state.journal = journal
     app.state.clock = clock
     app.state.provider = store.provider
+    app.include_router(spooktober_router(journal))
 
     @app.get("/api/provider")
     def provider_status() -> dict:
