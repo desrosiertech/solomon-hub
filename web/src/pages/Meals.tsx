@@ -24,6 +24,12 @@ export function MealsPage() {
 
   return (
     <div className="grid gap-6">
+      <p
+        role="status"
+        className="w-fit rounded-full bg-wash px-3 py-1 text-sm text-ink tabular-nums"
+      >
+        {meals.data?.reader.label ?? "Reader …"}
+      </p>
       <section className="rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h2 className="text-2xl">Ideas from what we have</h2>
