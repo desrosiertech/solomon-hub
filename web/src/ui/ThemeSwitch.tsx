@@ -10,7 +10,7 @@ export function ThemeSwitch() {
   }
 
   return (
-    <div className="flex rounded-full border border-line p-1" role="group" aria-label="Theme">
+    <div className="flex w-fit rounded-full border border-line p-1" role="group" aria-label="Theme">
       {THEMES.map((item) => (
         <button
           key={item.id}

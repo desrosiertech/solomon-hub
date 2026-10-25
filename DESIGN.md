@@ -1,6 +1,6 @@
 # Solomon visual system
 
-Operate surface. Sleek, technical, and cool. Three themes share one structure. Light is the daytime screen, navy is the house-at-night screen, dark is the low-light screen. None of them is pure black or pure gray.
+Household surface. Warm and readable in daylight, still cool at night. Three themes share one structure. Light is a warm off-white canvas with crisp cards. Navy is the house-at-night screen. Dark is the low-light screen. None of them is pure black or pure gray. The theme control lives on Settings and is remembered in the app. A compact bottom nav and, on a wide screen, a right rail for the time, weather, dinner, and next up. Member colors mark people on the calendar. They are separate from the one blue accent.
 
 ## Themes
 
@@ -8,14 +8,14 @@ Set `data-theme` on the document: `light`, `navy`, or `dark`. Remember the choic
 
 | Token | Light | Navy | Dark |
 |---|---|---|---|
-| canvas | `#e7edf6` | `#08101c` | `#0e131b` |
-| card | `#f5f8fc` | `#101a2e` | `#171d28` |
-| ink | `#101828` | `#e9f0fc` | `#eef3fb` |
-| muted | `#3e4c63` | `#c9d6ee` | `#c3cedf` |
-| line | `#c5d0e2` | `#2a3d5c` | `#2c3648` |
+| canvas | `#f3efe6` | `#08101c` | `#0e131b` |
+| card | `#fffcf7` | `#101a2e` | `#171d28` |
+| ink | `#241f1a` | `#e9f0fc` | `#eef3fb` |
+| muted | `#6e655c` | `#c9d6ee` | `#c3cedf` |
+| line | `#e4d8c8` | `#2a3d5c` | `#2c3648` |
 | accent | `#1e4fd7` | `#d5e4ff` | `#c9dbff` |
-| on-accent | `#f5f8ff` | `#07111f` | `#10141c` |
-| wash | `#d9e4f8` | `#1a2d4d` | `#243044` |
+| on-accent | `#f7f4ee` | `#07111f` | `#10141c` |
+| wash | `#efe4d4` | `#1a2d4d` | `#243044` |
 
 Accent is the one action color. Freshness never uses red. A stale note uses wash and ink, not a warning badge.
 

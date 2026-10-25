@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api";
-import { BringIn } from "../ui/BringIn";
 import { IdeasList } from "../ui/IdeasList";
 import { UseSoonList } from "../ui/UseSoonList";
 
@@ -45,12 +44,7 @@ export function MealsPage() {
             <div className="h-16 animate-pulse rounded-xl bg-wash" />
           </div>
         )}
-        {card?.state === "empty" && (
-          <p className="text-muted">
-            Nothing to cook from yet. Add a few groceries — a leafy green and a leftover
-            are enough to start dinner ideas.
-          </p>
-        )}
+        {card?.state === "empty" && <p className="text-muted">Nothing to cook from yet.</p>}
         {meals.data && card?.state !== "empty" && <IdeasList ideas={meals.data.ideas} />}
       </section>
       <section className="rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
@@ -61,7 +55,51 @@ export function MealsPage() {
         {meals.isPending && <p className="text-muted">Checking estimated use-by windows…</p>}
         {meals.data && <UseSoonList rows={meals.data.use_soon} />}
       </section>
-      <BringIn />
+      <PlannedAndBank />
     </div>
+  );
+}
+
+function PlannedAndBank() {
+  const nights = useQuery({ queryKey: ["planned"], queryFn: api.plannedMeals });
+  const recipes = useQuery({ queryKey: ["recipes"], queryFn: api.recipes });
+
+  return (
+    <>
+      <section className="rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
+        <h2 className="mb-3 text-2xl">Planned</h2>
+        {nights.isPending && <p className="text-muted">Loading the plan…</p>}
+        {nights.data && nights.data.nights.length === 0 && (
+          <p className="text-muted">No dinners planned yet.</p>
+        )}
+        <ul className="divide-y divide-line">
+          {nights.data?.nights.map((night) => (
+            <li key={night.on} className="py-3 first:pt-0 last:pb-0">
+              <p className="text-lg">{night.title}</p>
+              <p className="text-sm text-muted">{night.on}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section className="rounded-2xl border border-line bg-card p-5 shadow-[0_16px_40px_-28px_var(--shadow)]">
+        <h2 className="mb-3 text-2xl">Recipe bank</h2>
+        {recipes.isPending && <p className="text-muted">Loading recipes…</p>}
+        {recipes.data && recipes.data.recipes.length === 0 && (
+          <p className="text-muted">No recipes banked yet.</p>
+        )}
+        <ul className="divide-y divide-line">
+          {recipes.data?.recipes.map((recipe) => (
+            <li key={recipe.id} className="py-3 first:pt-0 last:pb-0">
+              <p className="text-lg">{recipe.title}</p>
+              {recipe.ingredients.length > 0 && (
+                <p className="text-sm text-muted">
+                  {recipe.ingredients.map((item) => item.replaceAll("_", " ")).join(", ")}
+                </p>
+              )}
+            </li>
+          ))}
+        </ul>
+      </section>
+    </>
   );
 }

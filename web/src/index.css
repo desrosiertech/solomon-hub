@@ -20,15 +20,15 @@
 
 :root,
 [data-theme="light"] {
-  --canvas: #e7edf6;
-  --card: #f5f8fc;
-  --ink: #101828;
-  --muted: #3e4c63;
-  --line: #c5d0e2;
+  --canvas: #f3efe6;
+  --card: #fffcf7;
+  --ink: #241f1a;
+  --muted: #6e655c;
+  --line: #e4d8c8;
   --accent: #1e4fd7;
-  --on-accent: #f5f8ff;
-  --wash: #d9e4f8;
-  --shadow: rgb(16 24 40 / 18%);
+  --on-accent: #f7f4ee;
+  --wash: #efe4d4;
+  --shadow: rgb(60 42 20 / 16%);
   color-scheme: light;
 }
 
