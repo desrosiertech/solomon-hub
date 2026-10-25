@@ -10,8 +10,16 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from solomon.board import BoardStore, CalendarAdapter, WeatherAdapter
+from solomon.cars import CarStore, mount as mount_cars
 from solomon.chat import ChatStore, OffReader
 from solomon.clock import AppClock
+from solomon.dogs import DogStore
+from solomon.household_settings import (
+    HouseholdPreferenceError,
+    parse_household,
+    read_household,
+    save_household,
+)
 from solomon.news import NewsAdapter, NewsStore
 from solomon.intake import (
     accept_recipe,
@@ -97,6 +105,8 @@ def create_app(
     board = BoardStore(engine, clock, weather, calendar)
     news_store = NewsStore(engine, clock, news)
     chat = ChatStore(engine, clock, store.blob_dir, chat_reader or OffReader())
+    cars = CarStore(engine, clock)
+    dogs = DogStore(engine)
     journal = SpooktoberStore(engine, clock)
 
     app = FastAPI(title="Solomon", version="0.1.0")
@@ -110,6 +120,8 @@ def create_app(
     app.state.board = board
     app.state.news = news_store
     app.state.chat = chat
+    app.state.cars = cars
+    app.state.dogs = dogs
     app.state.journal = journal
     app.state.clock = clock
     app.state.provider = store.provider
@@ -154,6 +166,30 @@ def create_app(
     @app.get("/api/clock")
     def get_clock() -> dict:
         return {"now": clock.now().isoformat()}
+
+    @app.get("/api/household")
+    def household() -> dict:
+        with store.session() as session:
+            return read_household(session)
+
+    @app.put("/api/household")
+    async def put_household(request: Request) -> dict:
+        payload = await request.json()
+        if not isinstance(payload, dict):
+            raise HTTPException(
+                status_code=400, detail="Household preferences do not take a token or a password."
+            )
+        try:
+            preferences = parse_household(payload)
+        except HouseholdPreferenceError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        with store.session() as session:
+            try:
+                saved = save_household(session, preferences)
+            except HouseholdPreferenceError as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+            session.commit()
+            return saved
 
     @app.put("/api/settings")
     def settings(body: SettingsIn) -> dict:
@@ -202,6 +238,10 @@ def create_app(
     @app.post("/api/weather/refresh")
     def refresh_weather() -> dict:
         return board.refresh_weather()
+
+    @app.get("/api/dogs")
+    def dogs_export() -> dict:
+        return dogs.export()
 
     @app.get("/api/news")
     def news_digest() -> dict:
@@ -297,6 +337,8 @@ def create_app(
     @app.get("/api/planned-meals")
     def planned() -> dict:
         return list_planned(store)
+
+    mount_cars(app, cars)
 
     web_dist = Path(__file__).resolve().parent.parent / "web" / "dist"
     if web_dist.is_dir():
