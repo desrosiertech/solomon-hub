@@ -13,6 +13,7 @@ from solomon.board import BoardStore, CalendarAdapter, WeatherAdapter
 from solomon.cars import CarStore, mount as mount_cars
 from solomon.chat import ChatStore, OffReader
 from solomon.clock import AppClock
+from solomon.dogs import DogStore
 from solomon.household_settings import (
     HouseholdPreferenceError,
     parse_household,
@@ -104,6 +105,7 @@ def create_app(
     news_store = NewsStore(engine, clock, news)
     chat = ChatStore(engine, clock, store.blob_dir, chat_reader or OffReader())
     cars = CarStore(engine, clock)
+    dogs = DogStore(engine)
 
     app = FastAPI(title="Solomon", version="0.1.0")
     app.add_middleware(
@@ -117,6 +119,7 @@ def create_app(
     app.state.news = news_store
     app.state.chat = chat
     app.state.cars = cars
+    app.state.dogs = dogs
     app.state.clock = clock
     app.state.provider = store.provider
 
@@ -231,6 +234,10 @@ def create_app(
     @app.post("/api/weather/refresh")
     def refresh_weather() -> dict:
         return board.refresh_weather()
+
+    @app.get("/api/dogs")
+    def dogs_export() -> dict:
+        return dogs.export()
 
     @app.get("/api/news")
     def news_digest() -> dict:
