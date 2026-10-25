@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AuditPage } from "./pages/Audit";
 import { CalendarPage } from "./pages/Calendar";
+import { CarsPage } from "./pages/Cars";
 import { ChatPage } from "./pages/Chat";
 import { DogsPage } from "./pages/Dogs";
 import { HomePage } from "./pages/Home";
@@ -17,6 +18,7 @@ const TABS = [
   { id: "meals", label: "Meals" },
   { id: "weather", label: "Weather" },
   { id: "news", label: "News" },
+  { id: "cars", label: "Cars" },
   { id: "dogs", label: "Dogs" },
   { id: "inventory", label: "Inventory" },
   { id: "history", label: "History" },
@@ -45,6 +47,7 @@ export function App() {
             {tab === "meals" && <MealsPage />}
             {tab === "weather" && <WeatherPage />}
             {tab === "news" && <NewsPage />}
+            {tab === "cars" && <CarsPage />}
             {tab === "dogs" && <DogsPage />}
             {tab === "inventory" && <InventoryPage />}
             {tab === "history" && <AuditPage />}
@@ -120,6 +123,15 @@ function NavIcon({ id }: { id: Tab }) {
       <svg {...common}>
         <path d="M5 5h11a2 2 0 0 1 2 2v12H7a2 2 0 0 1-2-2z" />
         <path d="M8 9h7M8 13h7" />
+      </svg>
+    );
+  }
+  if (id === "cars") {
+    return (
+      <svg {...common}>
+        <path d="M4 15h16M6 15l2-5h8l2 5" />
+        <circle cx="8" cy="16.5" r="1.5" />
+        <circle cx="16" cy="16.5" r="1.5" />
       </svg>
     );
   }

@@ -115,6 +115,25 @@ export type MealsPayload = {
   reader: ReaderStatus;
 };
 
+export type HouseholdAdult = {
+  id: string;
+  display_name: string;
+};
+
+export type HouseholdPreferences = {
+  adults: HouseholdAdult[];
+  storage_locations: string[];
+  freshness: "conservative" | "permissive";
+  suppression_days: number;
+  presumed_discard: "archive" | "review";
+  serving_size: number;
+  news_topics: string[];
+};
+
+export type HouseholdDraft = Omit<HouseholdPreferences, "adults"> & {
+  adults: { id?: string; display_name: string }[];
+};
+
 export type ProviderStatus = {
   name: string;
   signed_in: boolean;
@@ -204,6 +223,26 @@ export class ApiError extends Error {
   }
 }
 
+export type CarMaintenance = {
+  id: string;
+  kind: string;
+  kind_label: string;
+  performed_on: string | null;
+  evidence_note: string | null;
+  next_due?: string;
+};
+
+export type HouseholdCar = {
+  id: string;
+  nickname: string | null;
+  maintenance: CarMaintenance[];
+  missing: string[];
+};
+
+export type CarsPayload = {
+  cars: HouseholdCar[];
+};
+
 export type AuditEvent = {
   id: string;
   at: string;
@@ -260,6 +299,12 @@ async function sendForm<T>(path: string, body: FormData): Promise<T> {
 
 export const api = {
   provider: () => request<ProviderStatus>("/api/provider"),
+  household: () => request<HouseholdPreferences>("/api/household"),
+  saveHousehold: (body: HouseholdDraft) =>
+    request<HouseholdPreferences>("/api/household", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
   clock: () => request<{ now: string }>("/api/clock"),
   setClock: (now: string) => request<{ now: string }>("/api/clock", { method: "PUT", body: JSON.stringify({ now }) }),
   settings: (body: { grace_period_minutes: number; presume_after_minutes: number }) =>
@@ -315,6 +360,7 @@ export const api = {
       body: JSON.stringify({ on, recipe_id: recipeId }),
     }),
   plannedMeals: () => request<{ nights: PlannedNight[] }>("/api/planned-meals"),
+  cars: () => request<CarsPayload>("/api/cars"),
   chat: () => request<{ messages: ChatMessage[] }>("/api/chat"),
   sendChat: (text: string, image?: File) => {
     if (image) {
