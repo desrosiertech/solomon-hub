@@ -31,6 +31,8 @@ python3 -m uvicorn solomon.main:create_app --factory --host 127.0.0.1 --port 800
 
 Or leave the Vite proxy running (`cd web && npm run dev`) against the API on port 8000. SQLite lives at `data/solomon.db` (not committed). Do not put secrets in the repo.
 
+`python3 -m solomon` is the same server. It listens on `127.0.0.1:8000` unless `SOLOMON_HOST` and `SOLOMON_PORT` are set, and it reads `SOLOMON_DB` when that is set. The DeepThink guest uses that entry. See [`deploy/README.md`](deploy/README.md).
+
 ---
 
 # Matt Pocock skills

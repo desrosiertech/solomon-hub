@@ -1,0 +1,22 @@
+[Unit]
+Description=Solomon household dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=solomon
+Group=solomon
+WorkingDirectory=/opt/solomon/app
+Environment=SOLOMON_DB=/var/lib/solomon/solomon.db
+Environment=SOLOMON_HOST=0.0.0.0
+Environment=SOLOMON_PORT=8000
+ExecStart=/opt/solomon/venv/bin/python -m solomon
+Restart=on-failure
+RestartSec=3
+UMask=0077
+StateDirectory=solomon
+StateDirectoryMode=0750
+
+[Install]
+WantedBy=multi-user.target

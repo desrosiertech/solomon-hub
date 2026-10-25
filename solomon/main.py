@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -35,6 +36,14 @@ from solomon.service import FoodStore, make_engine, seed_if_empty
 from solomon.spooktober import SpooktoberStore, build_router as spooktober_router
 
 DEFAULT_DB = Path("data/solomon.db")
+
+
+def database_path(explicit: Path | str | None = None) -> Path:
+    """SQLite path. An explicit argument wins. Otherwise SOLOMON_DB, then data/solomon.db."""
+    if explicit is not None:
+        return Path(explicit)
+    configured = os.environ.get("SOLOMON_DB", "").strip()
+    return Path(configured) if configured else DEFAULT_DB
 
 
 class InventoryIn(BaseModel):
@@ -94,7 +103,7 @@ def create_app(
     news: NewsAdapter | None = None,
     chat_reader=None,
 ) -> FastAPI:
-    path = Path(db_path) if db_path is not None else DEFAULT_DB
+    path = database_path(db_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     engine = make_engine(path)
     with session_for(engine) as session:
