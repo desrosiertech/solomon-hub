@@ -155,6 +155,10 @@ def create_app(
     def refresh_calendar() -> dict:
         return board.refresh_calendar()
 
+    @app.get("/api/weather")
+    def weather() -> dict:
+        return board.forecast()
+
     @app.post("/api/weather/refresh")
     def refresh_weather() -> dict:
         return board.refresh_weather()
