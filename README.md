@@ -1,6 +1,6 @@
 # Solomon
 
-Private, LAN-first household dashboard. This repo has the grocery vertical slice (AI off), a Calendar day page, a Weather page, a News digest, Chat as the only intake, Settings for the theme and connections, plus the planning docs.
+Private, LAN-first household dashboard. This repo has the grocery vertical slice (AI off), a Calendar day page, a Weather page, a News digest, Chat as the only intake, Settings for the theme, connections, and household preferences, plus the planning docs.
 
 - Plan: [`docs/plan/README.md`](docs/plan/README.md)
 - Decisions: [`docs/adr/`](docs/adr/)

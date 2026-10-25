@@ -24,6 +24,7 @@ from solomon.food import (
     next_item_state,
     use_soon_suggestions,
 )
+from solomon.household_settings import ensure_household_columns
 from solomon.models import (
     AuditEvent,
     Base,
@@ -63,6 +64,7 @@ def make_engine(db_path: Path | str) -> Engine:
         connection.commit()
     Base.metadata.create_all(engine)
     _ensure_recipe_columns(engine)
+    ensure_household_columns(engine)
     return engine
 
 
@@ -111,10 +113,13 @@ def seed_if_empty(session: Session) -> None:
 
 
 def settings_from(household: Household) -> HouseholdSettings:
+    mode = "auto_archive" if household.presumed_discard == "archive" else household.presumed_discard
     return HouseholdSettings(
         profile=household.profile,
         grace_period=timedelta(minutes=household.grace_period_minutes),
         presume_after=timedelta(minutes=household.presume_after_minutes),
+        dismiss_period=timedelta(days=household.suppression_days),
+        presumed_discard_mode=mode,
     )
 
 
@@ -178,16 +183,15 @@ class FoodStore:
             acquired = datetime.fromisoformat(acquired_at)
         else:
             acquired = now
-        window = assign_estimated_window(
-            category=category,
-            storage=storage,
-            acquired_at=acquired,
-            profile="conservative",
-        )
-        settings = None
         with self.session() as session:
             household = self.household(session)
             settings = settings_from(household)
+            window = assign_estimated_window(
+                category=category,
+                storage=storage,
+                acquired_at=acquired,
+                profile=household.profile,
+            )
             confidence = derive_confidence(
                 source=payload.get("source") or "quick_add",
                 days_since_strong=0.0,
@@ -301,6 +305,8 @@ class FoodStore:
                 target = next_item_state(
                     _aware(item.estimated_use_by), item.window_days, now, settings
                 )
+                if target == "presumed_discarded" and settings.presumed_discard_mode == "review":
+                    target = "stale"
                 if target == item.state:
                     continue
                 exists = session.scalar(
