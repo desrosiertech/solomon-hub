@@ -175,6 +175,26 @@ export type Connections = {
   api: ConnectionSide;
 };
 
+export type VetRecord = {
+  id: string;
+  date: string | null;
+  kind: string;
+  evidence_note: string | null;
+  next_due?: string;
+};
+
+export type HouseholdDog = {
+  id: string;
+  name: string;
+  missing: string[];
+  ask: string | null;
+  records: VetRecord[];
+};
+
+export type DogsExport = {
+  dogs: HouseholdDog[];
+};
+
 export class ApiError extends Error {
   detail: string;
 
@@ -309,4 +329,5 @@ export const api = {
     });
   },
   connections: () => request<Connections>("/api/connections"),
+  dogs: () => request<DogsExport>("/api/dogs"),
 };

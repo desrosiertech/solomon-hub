@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 from solomon.board import BoardStore, CalendarAdapter, WeatherAdapter
 from solomon.chat import ChatStore, OffReader
 from solomon.clock import AppClock
+from solomon.dogs import DogStore
 from solomon.news import NewsAdapter, NewsStore
 from solomon.intake import (
     accept_recipe,
@@ -96,6 +97,7 @@ def create_app(
     board = BoardStore(engine, clock, weather, calendar)
     news_store = NewsStore(engine, clock, news)
     chat = ChatStore(engine, clock, store.blob_dir, chat_reader or OffReader())
+    dogs = DogStore(engine)
 
     app = FastAPI(title="Solomon", version="0.1.0")
     app.add_middleware(
@@ -108,6 +110,7 @@ def create_app(
     app.state.board = board
     app.state.news = news_store
     app.state.chat = chat
+    app.state.dogs = dogs
     app.state.clock = clock
     app.state.provider = store.provider
 
@@ -198,6 +201,10 @@ def create_app(
     @app.post("/api/weather/refresh")
     def refresh_weather() -> dict:
         return board.refresh_weather()
+
+    @app.get("/api/dogs")
+    def dogs_export() -> dict:
+        return dogs.export()
 
     @app.get("/api/news")
     def news_digest() -> dict:
